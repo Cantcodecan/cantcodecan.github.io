@@ -17,7 +17,7 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
 
 - [x] **T00 Daten und Karten** – `js/data.js`, `js/missions.js`, `test/data.test.js` (von Opus erstellt)
 
-- [ ] **T01 Regeln: Zustand, Bewegung, Kampf** 🧠
+- [x] **T01 Regeln: Zustand, Bewegung, Kampf** 🧠
   - Lesen: DESIGN.md §2–4, §10 · `js/data.js`
   - Neu: `game/js/rules.js` → `AW.rules = { newGame, clone, unitAt, tileAt, reachable, attackTargets, damage, previewAttack, apply, isOver }`
     - `newGame(mapDef, opts)`: opts `{ co:[a,b], ai:[null|level, …], difficulty }`, baut `state` aus `map`/`units`/`funds`/`objective`/`build`. `hp` 100, `acted` false.
