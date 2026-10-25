@@ -164,7 +164,8 @@
     if (moved) resetCapture(s, unit.x, unit.y);
     unit.x = a.x; unit.y = a.y; unit.moved = moved;
     const then = a.then || 'wait';
-    if (then !== 'wait' && !then.attack) throw new Error('Aktion nicht unterstützt: ' + then);
+    if (then !== 'wait' && then !== 'capture' && !then.attack) throw new Error('Aktion nicht unterstützt: ' + then);
+    if (then === 'capture') capture(s, unit);
     if (then.attack) {
       const target = unitById(s, then.attack);
       if (!target || !attackTargets(s, unit, unit.x, unit.y, moved).includes(target)) throw new Error('Ziel nicht angreifbar');
@@ -176,15 +177,125 @@
     if (s.units.includes(unit)) unit.acted = true;
   }
 
+  const isProperty = (t) => !!AW.TERRAIN[t.terrain].property;
+
+  // Gebäude von Spieler p als [{x,y,terrain}]
+  function propertiesOf(s, p) {
+    const out = [];
+    s.tiles.forEach((t, i) => {
+      if (t.owner === p && isProperty(t)) out.push({ x: i % s.w, y: Math.floor(i / s.w), terrain: t.terrain });
+    });
+    return out;
+  }
+
+  function capture(s, unit) {
+    const t = tileAt(s, unit.x, unit.y);
+    if (!AW.UNITS[unit.type].capture || !isProperty(t) || t.owner === unit.owner) throw new Error('Einnehmen nicht möglich');
+    t.cp -= dispHp(unit.hp);
+    if (t.cp <= 0) {
+      t.owner = unit.owner;
+      t.cp = AW.ECONOMY.capturePoints;
+      if (t.terrain === 'hq') s.winner = unit.owner;
+    }
+  }
+
+  function unitCost(s, owner, type) {
+    const def = AW.UNITS[type], mod = bonusFor(coOf(s, owner).costMod, def);
+    return Math.round(def.cost * (100 + mod) / 100);
+  }
+
+  // Baubare Einheiten auf (x,y) für den aktiven Spieler: [{type, cost, affordable}]
+  function buildOptions(s, x, y) {
+    const t = tileAt(s, x, y), owner = s.turn;
+    if (!t || t.owner !== owner || !AW.TERRAIN[t.terrain].builds || unitAt(s, x, y)) return [];
+    return AW.BUILD_LISTS[AW.TERRAIN[t.terrain].builds]
+      .filter((type) => !s.build || s.build.includes(type))
+      .map((type) => { const cost = unitCost(s, owner, type); return { type, cost, affordable: cost <= s.players[owner].funds }; });
+  }
+
+  function applyBuild(s, a) {
+    const opt = buildOptions(s, a.x, a.y).find((o) => o.type === a.unit);
+    if (!opt) throw new Error('Bauen nicht möglich');
+    if (!opt.affordable) throw new Error('Zu wenig Geld');
+    s.players[s.turn].funds -= opt.cost;
+    s.units.push({ id: s.nextId++, type: a.unit, owner: s.turn, x: a.x, y: a.y, hp: 100, acted: true, moved: false });
+  }
+
+  function applyPower(s) {
+    const p = s.players[s.turn], pw = coOf(s, s.turn).power;
+    if (p.powerActive || p.charge < pw.stars * AW.POWER_STAR) throw new Error('Kraft nicht bereit');
+    p.charge = 0;
+    p.powerActive = true;
+    if (pw.heal) for (const u of s.units) if (u.owner === s.turn) u.hp = Math.min(100, u.hp + pw.heal);
+  }
+
+  function startTurn(s) {
+    const p = s.players[s.turn];
+    const mul = p.ai ? AW.DIFFICULTY[s.difficulty].incomeMul : 1;
+    p.funds += Math.round(AW.ECONOMY.incomePerProperty * propertiesOf(s, s.turn).length * mul);
+    for (const u of s.units) {
+      if (u.owner !== s.turn) continue;
+      const def = AW.UNITS[u.type], t = tileAt(s, u.x, u.y);
+      const fits = t.owner === s.turn && isProperty(t) &&
+        (t.terrain === 'airport' ? def.domain === 'air' : def.domain === 'ground');
+      if (fits && u.hp < 100) {
+        const heal = Math.min(AW.ECONOMY.healHp, 100 - u.hp);
+        const cost = Math.round(def.cost * AW.ECONOMY.healCostFactor * heal / 10);
+        if (p.funds >= cost) { p.funds -= cost; u.hp += heal; }
+      }
+      u.acted = false; u.moved = false;
+    }
+  }
+
+  function applyEnd(s) {
+    s.players[s.turn].powerActive = false;
+    s.turn = 1 - s.turn;
+    if (s.turn === 0) s.day++;
+    startTurn(s);
+  }
+
+  function canBuild(s, p) {
+    const funds = s.players[p].funds;
+    return s.tiles.some((t, i) => {
+      if (t.owner !== p || !AW.TERRAIN[t.terrain].builds) return false;
+      const list = AW.BUILD_LISTS[AW.TERRAIN[t.terrain].builds].filter((ty) => !s.build || s.build.includes(ty));
+      return list.some((ty) => unitCost(s, p, ty) <= funds);
+    });
+  }
+
+  // Prüft Siegbedingungen (§7), setzt state.winner (0, 1 oder 'draw') und gibt true zurück, wenn das Spiel endet
+  function isOver(s) {
+    if (s.winner !== null) return true;
+    const obj = s.objective || { type: 'rout' };
+    const hqLost = (p) => !s.tiles.some((t) => t.terrain === 'hq' && t.owner === p);
+    for (const p of [0, 1]) {
+      if (hqLost(p)) { s.winner = 1 - p; return true; }
+    }
+    for (const p of [0, 1]) {
+      if (s.units.some((u) => u.owner === p)) continue;
+      const out = p === s.turn ? !canBuild(s, p) : (s.day >= 2 || !canBuild(s, p));
+      if (out) { s.winner = 1 - p; return true; }
+    }
+    if (obj.type === 'survive' && s.day > obj.days) { s.winner = 0; return true; }
+    if (s.day > (obj.dayLimit || AW.ECONOMY.dayLimit)) {
+      const a = propertiesOf(s, 0).length, b = propertiesOf(s, 1).length;
+      s.winner = a > b ? 0 : b > a ? 1 : 'draw';
+      return true;
+    }
+    return false;
+  }
+
   function apply(s, action) {
     if (s.winner !== null) throw new Error('Spiel beendet');
     if (action.type === 'move') applyMove(s, action);
+    else if (action.type === 'build') applyBuild(s, action);
+    else if (action.type === 'power') applyPower(s);
+    else if (action.type === 'end') applyEnd(s);
     else throw new Error('Aktion nicht unterstützt: ' + action.type);
+    isOver(s);
     return s;
   }
 
-  const isOver = (s) => s.winner !== null;
-
-  AW.rules = { newGame, clone, unitAt, tileAt, reachable, attackTargets, damage, previewAttack, apply, isOver };
+  AW.rules = { newGame, clone, unitAt, tileAt, reachable, attackTargets, damage, previewAttack, apply, isOver, propertiesOf, buildOptions };
   if (typeof module !== 'undefined' && module.exports) module.exports = AW.rules;
 })(globalThis);

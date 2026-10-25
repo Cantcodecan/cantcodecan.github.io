@@ -29,11 +29,12 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Neu: `game/test/rules.test.js` mit mindestens: Kosten Wald/Gebirge je Bewegungsart, Blockade durch Gegner, Durchzug durch eigene, Indirekte feuern nicht nach Bewegung, Formel-Stichprobe (Panzer 10 HP greift Infanterie 10 HP auf Wald an: floor(75×1×(100−20)/100) = 60), Gegenangriff mit reduzierten HP.
   - Test: `node game/test/rules.test.js`
 
-- [ ] **T02 Regeln: Wirtschaft, Einnahme, Rundenwechsel, Sieg, Kräfte**
+- [x] **T02 Regeln: Wirtschaft, Einnahme, Rundenwechsel, Sieg, Kräfte**
   - Lesen: DESIGN.md §2, §5–7 · `js/rules.js`
   - In `rules.js` ergänzen: `apply` für `then:'capture'`, `build`, `power`, `end` (Rundenbeginn: Einkommen inkl. `incomeMul` nur für KI-Spieler, Heilen, Reset), `propertiesOf(state,p)`, `buildOptions(state,x,y)` (mit `costMod`), `isOver` (rout, survive, dayLimit → setzt `state.winner`).
   - Tests ergänzen: Einnahme mit 10 HP in 2 Zügen, Reset bei Verlassen, Einkommen, Heilen mit Kosten, Bauen nur auf freier eigener Fabrik, HQ-Einnahme beendet Spiel, survive nach N Tagen, Kraft-Aktivierung setzt Ladung auf 0.
   - Test: `node game/test/rules.test.js`
+  - Annahmen: `winner` = 0 | 1 | `'draw'`; `isOver` prüft und setzt es (auch von `apply` aufgerufen); Rout ohne Einheiten: Gegner ab Tag 2 oder sofort ohne baubare Einheit, aktiver Spieler nur ohne baubare Einheit.
 
 - [ ] **T03 Piktogramme: Gelände und Gebäude**
   - Lesen: ART.md komplett (ohne Einheiten und Porträts)
