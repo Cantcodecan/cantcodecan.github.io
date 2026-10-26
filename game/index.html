@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Old School Wars</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <div id="boardWrap"><div id="board"></div></div>
+  <aside id="side">
+    <div id="hud">
+      <div id="portrait"></div>
+      <div class="meta"><div id="who"></div><div id="goal"></div><div id="co"></div><div id="charge"><i></i></div></div>
+    </div>
+    <div id="row"><button id="power">Kraft</button><button id="end" class="ghost">Zug beenden</button><button id="fast" class="ghost">Schnell: aus</button><button id="menuBtn" class="ghost">Menü</button></div>
+    <div id="info"></div>
+    <div id="menu"></div>
+  </aside>
+</div>
+<div id="overlay"><div class="box"><h2 id="overlayText"></h2><div class="list"><button id="restart">Neue Partie</button><button id="toMenu" class="ghost">Menü</button></div></div></div>
+<div id="screen"></div>
+<script src="js/data.js"></script>
+<script src="js/missions.js"></script>
+<script src="js/rules.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/menu.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><title>Old School Wars</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{font:14px sans-serif;margin:16px;background:#f4f4f0;color:#222}h2{margin:20px 0 6px}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.c{text-align:center;font-size:11px}svg{display:block}</style></head>
+<body><h1>Old School Wars</h1><div id="out"></div>
+<script src="js/data.js"></script><script src="js/icons.js"></script><script src="js/render.js"></script>
+<script>
+const out = document.getElementById('out');
+const svg = (inner, px) => `<svg width="${px}" height="${px}" viewBox="0 0 48 48">${inner}</svg>`;
+const cell = (inner, label) => `<div class="c">${svg(inner, 48)}${svg(inner, 28)}${label || ''}</div>`;
+let h = '';
+for (const t in AW.TERRAIN) {
+  h += `<h2>${AW.TERRAIN[t].name}</h2><div class="row">`;
+  const owners = AW.TERRAIN[t].property ? [null, 0, 1] : [null];
+  for (const o of owners) h += cell(AW.icons.terrain(t, o, 1, 1, 0), o === null ? 'neutral' : AW.FACTIONS[o].name);
+  h += '</div>';
+}
+for (const t of ['road', 'river']) {
+  h += `<h2>${AW.TERRAIN[t].name}: 16 Masken</h2><div class="row">`;
+  for (let m = 0; m < 16; m++) h += cell(AW.icons.terrain(t, null, 0, 0, m), m);
+  h += '</div>';
+}
+for (const n of [2, 3]) {
+  h += `<h2>Fluss ${n}×${n}</h2><div style="display:grid;grid-template-columns:repeat(${n},48px)">`;
+  const st = { w: n + 2, h: n + 2, tiles: [] };
+  for (let y = 0; y < st.h; y++) for (let x = 0; x < st.w; x++) st.tiles.push({ terrain: x && y && x <= n && y <= n ? 'river' : 'plain' });
+  for (let y = 1; y <= n; y++) for (let x = 1; x <= n; x++) h += svg(AW.icons.terrain('river', null, x, y, AW.render.neighborMask(st, x, y, 'river')), 48);
+  h += '</div>';
+}
+for (const g of ['plain', 'forest', 'sea']) {
+  h += `<h2>Einheiten auf ${AW.TERRAIN[g].name}</h2><div class="row">`;
+  for (const u in AW.UNITS) for (const o of [0, 1]) {
+    const bg = AW.icons.terrain(g, null, 1, 1, 0);
+    h += cell(bg + AW.icons.unit(u, o), AW.UNITS[u].name + ' ' + (o ? 'Rot' : 'Blau'));
+  }
+  h += '</div>';
+}
+h += '<h2>Porträts</h2><div class="row">';
+for (const c in AW.COMMANDERS) {
+  const p = AW.icons.portrait(c);
+  h += `<div class="c"><svg width="128" height="128" viewBox="0 0 64 64">${p}</svg><svg width="48" height="48" viewBox="0 0 64 64">${p}</svg>${AW.COMMANDERS[c].name}</div>`;
+}
+h += '</div>';
+out.innerHTML = h;
+</script></body></html>

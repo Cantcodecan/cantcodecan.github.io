@@ -1,0 +1,176 @@
+// Kampagne und Gefechtskarten. Zeichenlegende: AW.TILE_CHARS in data.js. Story: docs/DESIGN.md
+// units: [Typ, Besitzer, x, y]; funds: Startgeld [Azur, Karmin]; build: erlaubte Einheiten (fehlt = alle)
+(function (g) {
+  const AW = (g.AW = g.AW || {});
+
+  AW.MISSIONS = [
+    {
+      id: 'm1', name: 'Landung bei Möwenbucht', co: ['mira', 'varek'],
+      objective: { type: 'rout' }, funds: [0, 0],
+      map: [
+        'wwww..TT..ww',
+        'ww1..===..cw',
+        'wA.===.T==.w',
+        'w..=..^^.=Bw',
+        'w..=.TT..=.w',
+        'ww.===..==2w',
+        'www..c..T.ww',
+        'wwwww...wwww',
+      ],
+      units: [['inf', 0, 2, 3], ['inf', 0, 2, 4], ['tank', 0, 3, 2],
+              ['inf', 1, 9, 2], ['inf', 1, 9, 4], ['inf', 1, 10, 4]],
+      intro: [
+        ['Mira Falk', 'Möwenbucht ist gefallen, als die Karmin-Flotte im Morgennebel kam. Wir holen sie uns zurück.'],
+        ['Mira Falk', 'Panzer vor, Infanterie dahinter. Wald und Berge schützen. Nehmt ihr Hauptquartier ein oder vertreibt sie.'],
+        ['Marschall Varek', 'Ein Haufen Fischer mit einem Panzer? Die Hegemonie wird euch lehren, was Ordnung heißt.'],
+      ],
+      outro: [['Mira Falk', 'Die Bucht ist frei. Aber warum ist Karmin so weit nach Süden vorgestoßen?']],
+    },
+    {
+      id: 'm2', name: 'Der Wald von Tann', co: ['mira', 'varek'],
+      objective: { type: 'survive', days: 8 }, funds: [0, 5000], build: ['inf', 'mech', 'recon', 'tank'],
+      map: [
+        '^^TTT..^^..Tww',
+        '^A.TT.====.2Gw',
+        '^..TT.T..=..Bw',
+        '1..T..T..=...w',
+        '===T====T==.2w',
+        '...T..T.....ww',
+        '^.TTT..T.^^.Gw',
+        '^^.T..TT..^..w',
+        '^^^c.......www',
+      ],
+      units: [['inf', 0, 3, 2], ['inf', 0, 3, 5], ['mech', 0, 4, 3], ['mech', 0, 3, 6], ['recon', 0, 1, 4], ['tank', 0, 2, 3],
+              ['inf', 1, 9, 2], ['inf', 1, 9, 3], ['tank', 1, 10, 4], ['tank', 1, 10, 1], ['recon', 1, 9, 5], ['inf', 1, 11, 6], ['inf', 1, 11, 7]],
+      intro: [
+        ['Mira Falk', 'Späher melden eine ganze Panzerkolonne. Wir können sie nicht schlagen – aber aufhalten.'],
+        ['Mira Falk', 'Haltet den Wald acht Tage lang. Grenadiere gegen Panzer, Infanterie in die Bäume.'],
+        ['Marschall Varek', 'Bäume halten keinen Stahl auf. Walzt sie nieder!'],
+      ],
+      outro: [['Tarek Hale', 'Gut gehalten, Falk. Meine Batterien sind da. Jetzt schießen wir zurück.']],
+    },
+    {
+      id: 'm3', name: 'Brücken am Grauen Fluss', co: ['tarek', 'varek'],
+      objective: { type: 'rout' }, funds: [3000, 3000], build: ['inf', 'mech', 'recon', 'tank', 'art'],
+      map: [
+        'ww..T..~..T.ww',
+        'w.A.F..~..G.Bw',
+        'w..===.~.===.w',
+        'w.T..=.~.=.T.w',
+        'w1...=====..2w',
+        'w..T.^.~.^.T.w',
+        'wT..c..~..c.Tw',
+        'w..^.=====^..w',
+        'w.1...T~T...2w',
+        'wwww..~~..wwww',
+      ],
+      units: [['inf', 0, 3, 2], ['inf', 0, 2, 4], ['tank', 0, 3, 3], ['art', 0, 1, 3], ['mech', 0, 2, 5],
+              ['inf', 1, 10, 3], ['inf', 1, 10, 5], ['tank', 1, 9, 2], ['art', 1, 12, 3], ['recon', 1, 11, 4]],
+      intro: [
+        ['Tarek Hale', 'Zwei Brücken, ein Fluss. Wer die Brücken hält, hält das Tal.'],
+        ['Tarek Hale', 'Artillerie trifft über zwei bis drei Felder, aber nie nach einer Bewegung. Deckt sie mit Panzern.'],
+        ['Marschall Varek', 'Kanonen hinter einem Fluss. Feige – und wirkungslos.'],
+      ],
+      outro: [['Marschall Varek', 'Rückzug nach Erzheim! Die Fabriken dürfen nicht fallen.']],
+    },
+    {
+      id: 'm4', name: 'Fabrikstadt Erzheim', co: ['mira', 'varek'],
+      objective: { type: 'rout' }, funds: [5000, 5000], build: ['inf', 'mech', 'recon', 'tank', 'heavy', 'art', 'rocket', 'aa'],
+      map: [
+        'wwwww..TT..wwwww',
+        'ww..c..==..c..ww',
+        'wA.F..T==T..G.Bw',
+        'w.============.w',
+        'w.=.c.^^^^.c.=.w',
+        'wc=.T.c..c.T.=cw',
+        'w.=..TT..TT..=.w',
+        'w.F=====f=====Gw',
+        'ww..c..TT..c..ww',
+        'wwwww..^^..wwwww',
+      ],
+      units: [['inf', 0, 2, 1], ['inf', 0, 1, 3], ['tank', 0, 2, 4],
+              ['inf', 1, 13, 1], ['inf', 1, 14, 3], ['tank', 1, 13, 4]],
+      intro: [
+        ['Mira Falk', 'Erzheim baut Karmins Panzer. Jede Stadt bringt uns 1000 Taler pro Tag, jede Fabrik baut Nachschub.'],
+        ['Mira Falk', 'Infanterie nimmt die Städte ein, der Rest schützt sie. Die Fabrik in der Mitte ist der Schlüssel.'],
+        ['Marschall Varek', 'Ihr wollt einen Krieg der Fabriken? Den verliert ihr.'],
+      ],
+      outro: [
+        ['Marschall Varek', 'Genug. Ich habe Befehle befolgt, die nicht meine waren. Sel will die Glutquelle nicht erobern – Sel will sie zünden.'],
+        ['Mira Falk', 'Dann fliegen wir nach Ascha.'],
+      ],
+    },
+    {
+      id: 'm5', name: 'Himmel über Ascha', co: ['mira', 'sel'],
+      objective: { type: 'rout' }, funds: [6000, 6000],
+      map: [
+        '^^^^..ww..^^^^',
+        '^A.P..ww..Q.B^',
+        '^.F.=.ww.=.G.^',
+        '^..==^^^^==..^',
+        '^c.=.^^^^.=.c^',
+        '^..=.^c^^.=..^',
+        '^..=========.^',
+        '^1..T.ww.T..2^',
+        '^^..c.ww.c..^^',
+        '^^^^^.ww.^^^^^',
+      ],
+      units: [['inf', 0, 1, 2], ['aa', 0, 4, 2], ['tank', 0, 2, 3], ['heli', 0, 3, 1],
+              ['heli', 1, 10, 1], ['heli', 1, 9, 2], ['inf', 1, 12, 2], ['tank', 1, 11, 3], ['inf', 1, 12, 4]],
+      intro: [
+        ['Sel', 'Varek war ein nützlicher Narr. Die Glutquelle gehört dem, der sie zu entfesseln wagt.'],
+        ['Mira Falk', 'Hubschrauber über den Bergen! Flak nach vorn, sie holt alles vom Himmel.'],
+        ['Mira Falk', 'Unser Flughafen baut eigene Hubschrauber. Die Berge sind nur aus der Luft passierbar.'],
+      ],
+      outro: [['Sel', 'Ein Rückschlag. Die Quelle erwacht trotzdem. Kommt und seht zu.']],
+    },
+    {
+      id: 'm6', name: 'Die Glutquelle', co: ['mira', 'sel'],
+      objective: { type: 'rout' }, funds: [8000, 10000],
+      map: [
+        'wwww^^^..^^^wwww',
+        'wA.P..T==T..Q.Bw',
+        'w.F.==..c...==Gw',
+        'w..==.^^^^^..=.w',
+        'wc.=..^ccc^..=cw',
+        'w..=..^^c^^..=.w',
+        'w.F=====.=====Gw',
+        'w..TT..~~..TT..w',
+        'w1..c..====c..2w',
+        'ww.TT.T~~T.TT.ww',
+        'wwwww..~~..wwwww',
+      ],
+      units: [['inf', 0, 1, 2], ['inf', 0, 2, 3], ['tank', 0, 3, 2], ['art', 0, 1, 3], ['aa', 0, 4, 2], ['mech', 0, 2, 4],
+              ['tank', 1, 12, 2], ['heavy', 1, 13, 3], ['art', 1, 14, 3], ['heli', 1, 12, 1], ['fighter', 1, 11, 1], ['inf', 1, 13, 4], ['inf', 1, 14, 5]],
+      intro: [
+        ['Tarek Hale', 'Der Ring aus Städten um die Quelle. Wer ihn hält, hat das Geld für den Sieg.'],
+        ['Sel', 'Jäger, Bomber, Raketen – alles, was ihr kennt, nur mehr davon.'],
+        ['Mira Falk', 'Dann kämpfen wir klüger. Für Valdur!'],
+      ],
+      outro: [
+        ['Mira Falk', 'Die Quelle ist sicher. Valdur ist frei.'],
+        ['Marschall Varek', 'Die Hegemonie schuldet euch mehr als eine Entschuldigung. Ich beginne damit.'],
+      ],
+    },
+  ];
+
+  // Alle Missionskarten sind zusätzlich im Gefecht wählbar (ohne Story, Ziel = rout).
+  AW.SKIRMISH = [
+    {
+      id: 's1', name: 'Zwei Ufer', funds: [5000, 5000],
+      map: [
+        'ww.c..TT..c.ww',
+        'wA.F.====.G.Bw',
+        'w..T.=..=.T..w',
+        'wc..==^^==..cw',
+        'w..=..~~..=..w',
+        'w.P=.=~~=.=Q.w',
+        'w.==========.w',
+        'w1..T....T..2w',
+        'ww.c.^..^.c.ww',
+        'wwww..TT..wwww',
+      ],
+      units: [['inf', 0, 2, 1], ['inf', 0, 4, 1], ['inf', 1, 11, 1], ['inf', 1, 9, 1]],
+    },
+  ];
+})(globalThis);
