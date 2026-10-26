@@ -118,7 +118,7 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Infanterie: Gesicht in Hautfarbe unter dem Helm, Körper/Beine klar getrennt. Grenadier: Kopf mit Helm und Gesicht, kräftiger Körper, Rucksack hinten, Panzerfaust auf der Schulter (Rohr metall, Spitze teamfarben), Beine sichtbar. Beide bei 28 px eindeutig unterscheidbar.
   - Test: T04-Test; Vorschau-Screenshot (Einheiten auf Ebene, 96 px und 28 px) selbst ansehen.
 
-- [ ] **T16 Piktogramme: Fahrzeuge und Bomber**
+- [x] **T16 Piktogramme: Fahrzeuge und Bomber**
   - Befund: Bomber-Triebwerke schweben als Kästen unter dem Rumpf, Flügel kaum erkennbar; Späher hat Periskop statt MG und kein offenes Verdeck; Raketen ohne teamfarbene Spitzen; Schwerer Panzer ohne Kettenschürzen.
   - Lesen: ART.md (Einheiten) · in `js/icons.js` nur die Funktionen für bomber, recon, rocket, heavy
   - Bomber: breiter Rumpf, gerade Flügel sichtbar, 2 Triebwerke an den Flügeln, Bombenschacht. Späher: offenes Verdeck, MG auf Halterung. Raketen: Spitzen teamfarben. Schwerer Panzer: Schürzen über der Kette, Rohr innerhalb der 48er-Box.

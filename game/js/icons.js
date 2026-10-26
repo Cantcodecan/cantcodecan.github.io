@@ -144,8 +144,11 @@
             `<path d="M20 31l8-3" stroke="${SKIN}" stroke-width="3.5"/></g>`;
           break;
         case 'recon':
-          b = `<g ${S}><path d="M6 35v-8l8-2 5-7h12l4 8 7 2v7z" fill="${t.color}"/><path d="M19 18h12l3 7H16z" fill="${GLASS}"/>` +
-            `<path d="M24 25V12h8" fill="none" stroke="${MET}" stroke-width="3"/></g>` + wheel(14, 36, 6) + wheel(36, 36, 6);
+          b = `<g ${S}><path d="M5 36v-8l8-1h9l2 2h8l3-3 4 4 5 1v5z" fill="${t.color}"/><path d="M8 31h34" stroke="${t.dark}" stroke-width="2.5"/>` +
+            `<path d="M26 28l3-9" stroke="${MET}" stroke-width="2.5"/><path d="M26.5 27l2.8-8" stroke="${GLASS}" stroke-width="1"/>` +
+            `<circle cx="19" cy="20" r="4.5" fill="${SKIN}"/><path d="M14 19a5 4 0 0 1 10 0z" fill="${t.dark}"/><rect x="15" y="24" width="8" height="4" rx="1.5" fill="${t.dark}"/>` +
+            `<path d="M38 28V21" stroke="${MET}" stroke-width="2.5"/><rect x="35" y="17.5" width="12" height="3.5" rx="1" fill="${MET}"/><rect x="34" y="16.5" width="4" height="6" rx="1" fill="${METL}"/></g>` +
+            wheel(14, 36, 6) + wheel(36, 36, 6);
           break;
         case 'tank':
           b = track(6, 32, 36, 10, 4) +
@@ -155,10 +158,11 @@
           break;
         case 'heavy':
           b = `<g ${S}><rect x="4" y="29" width="40" height="13" rx="6" fill="${t.dark}"/></g>` +
-            [11, 18, 25, 32, 38].map((x) => `<circle cx="${x}" cy="36" r="3" fill="${METL}"/>`).join('') +
-            `<g ${S}><rect x="6" y="21" width="36" height="12" rx="2" fill="${t.color}"/><path d="M6 33h36v4H6z" fill="${t.dark}"/>` +
-            `<path d="M12 21l3-10h16l5 10z" fill="${t.color}"/><path d="M15 11h16l2 4H14z" fill="${t.light}"/>` +
-            `<rect x="32" y="13" width="15" height="5.5" rx="1" fill="${MET}"/><rect x="43" y="11.5" width="4" height="8.5" fill="${METL}"/></g>`;
+            [10, 17, 24, 31, 38].map((x) => `<circle cx="${x}" cy="37" r="3" fill="${METL}"/>`).join('') +
+            `<g ${S}><rect x="6" y="22" width="34" height="11" rx="2" fill="${t.color}"/>` +
+            `<path d="M4 30h40l-2 8H6z" fill="${t.dark}"/><path d="M13 34h24M13 30.5v4M24 30.5v4M35 30.5v4" stroke="${OUT}" stroke-width="1.2"/>` +
+            `<path d="M11 22l3-10h15l5 10z" fill="${t.color}"/><path d="M14 12h15l2 4H13z" fill="${t.light}"/>` +
+            `<rect x="30" y="14" width="12" height="5" rx="1" fill="${MET}"/><rect x="40" y="12.5" width="5" height="8" fill="${METL}"/></g>`;
           break;
         case 'art':
           b = track(5, 32, 32, 10, 4) +
@@ -166,9 +170,10 @@
             `<g transform="rotate(-45 22 22)"><rect x="19" y="18" width="24" height="7" rx="2" fill="${MET}"/><rect x="40" y="16.5" width="5" height="10" fill="${METL}"/></g></g>`;
           break;
         case 'rocket':
-          b = `<g ${S}><rect x="3" y="28" width="42" height="8" rx="2" fill="${t.color}"/><rect x="32" y="21" width="12" height="8" fill="${t.dark}"/>` +
-            `<g transform="rotate(-35 18 26)"><rect x="8" y="19" width="32" height="10" rx="2" fill="${MET}"/>` +
-            [21, 24, 27].map((y) => `<rect x="9" y="${y - 3.5}" width="30" height="3" fill="#fff" stroke-width="1.2"/><path d="M39 ${y - 3.5}l5 1.5-5 1.5z" fill="${t.color}" stroke-width="1.2"/>`).join('') + `</g></g>` +
+          b = `<g ${S}><rect x="3" y="29" width="42" height="7" rx="2" fill="${t.color}"/><rect x="33" y="22" width="11" height="8" fill="${t.dark}"/>` +
+            `<path d="M10 29l8-6" stroke-width="3"/>` +
+            `<g transform="rotate(-35 12 27)"><rect x="4" y="15" width="30" height="13" rx="2" fill="${MET}"/>` +
+            [17, 21.5, 26].map((y) => `<rect x="6" y="${y - 2}" width="28" height="3.2" fill="#fff" stroke-width="1.2"/><path d="M34 ${y - 3}l9 2.6-9 2.6z" fill="${t.color}" stroke-width="1.2"/>`).join('') + `</g></g>` +
             wheel(10, 37, 4.5) + wheel(21, 37, 4.5) + wheel(32, 37, 4.5) + wheel(41, 37, 4.5);
           break;
         case 'aa':
@@ -192,10 +197,11 @@
           break;
         case 'bomber':
           sh = `<ellipse cx="24" cy="44" rx="16" ry="2.4" fill="#000" opacity=".25"/>`;
-          b = `<g ${S}><path d="M4 22l-3-9h6l5 9z" fill="${t.dark}"/><rect x="4" y="21" width="38" height="11" rx="5" fill="${t.color}"/>` +
-            `<path d="M36 22q6 0 7 5l-6 1z" fill="${GLASS}"/><path d="M13 28L22 39h10L26 28z" fill="${t.dark}"/>` +
-            `<rect x="16" y="36" width="10" height="6" rx="2" fill="${MET}"/><rect x="30" y="34" width="9" height="6" rx="2" fill="${MET}"/>` +
-            `<rect x="14" y="31" width="14" height="3.5" fill="#2b3340" stroke-width="1.2"/></g>`;
+          b = `<g ${S}><path d="M4 21L1 10h6l5 11z" fill="${t.dark}"/><path d="M12 28h22l8 9H4z" fill="${t.light}"/><path d="M12 28l-4 9M34 28l4 9" stroke-width="1" fill="none"/>` +
+            `<rect x="9" y="33" width="14" height="6" rx="3" fill="${MET}"/><rect x="22" y="32.5" width="3" height="7" rx="1" fill="${t.dark}"/>` +
+            `<rect x="25" y="37" width="14" height="6" rx="3" fill="${MET}"/><rect x="38" y="36.5" width="3" height="7" rx="1" fill="${t.dark}"/>` +
+            `<rect x="3" y="19" width="40" height="12" rx="6" fill="${t.color}"/><path d="M35 20q6 0 7 5l-7 1z" fill="${GLASS}"/>` +
+            `<rect x="14" y="26" width="15" height="3.5" fill="#2b3340" stroke-width="1.2"/><path d="M21.5 26v3.5" stroke-width="1.2"/></g>`;
           break;
         default:
           b = `<circle cx="24" cy="26" r="12" fill="${t.color}" ${S}/>`;
