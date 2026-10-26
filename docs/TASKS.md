@@ -106,7 +106,7 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - `neighborMask` liefert für Fluss zusätzlich Diagonal-Bits (oben-rechts 16, unten-rechts 32, unten-links 64, oben-links 128, nur gesetzt, wenn beide angrenzenden Orthogonalen auch Fluss sind). Der Fluss füllt bei gesetztem Diagonal-Bit die betreffende Ecke, sodass zusammenhängende Flächen als See erscheinen. Straßen ignorieren die neuen Bits. Vorschau-Seite: zusätzlich ein 2×2- und ein 3×3-Flussblock.
   - Test: T03-Test, `node game/test/smoke.js`; Screenshot der Kartenmitte „Zwei Ufer“ zeigt eine geschlossene Wasserfläche.
 
-- [ ] **T14 Fehler (gering): Mobilansicht 360 px**
+- [x] **T14 Fehler (gering): Mobilansicht 360 px**
   - Befund: Bei 360 px ist die Karte rechts abgeschnitten (horizontal scrollen nötig), darunter viel leerer Platz im Seitenpanel.
   - Lesen: `css/style.css` · in `js/render.js` nur die Kachelgrößen-Berechnung
   - Kachelgröße so wählen, dass die Karte in die Breite passt, aber nie kleiner als 22 px (`min(56px, max(22px, (100vw - Ränder) / w))`, als CSS-Variable aus `render.js` gesetzt). Erst darunter horizontal scrollen. Info-Panel ohne feste Mindesthöhe.

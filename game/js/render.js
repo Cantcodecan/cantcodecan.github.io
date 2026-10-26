@@ -42,6 +42,7 @@
   function draw(s, view = {}) {
     root.style.setProperty('--w', s.w);
     root.style.setProperty('--h', s.h);
+    root.style.setProperty('--t', `min(56px, max(22px, calc((100vw - var(--gut)) / ${s.w})))`);
     let th = '';
     s.tiles.forEach((t, i) => {
       const x = i % s.w, y = Math.floor(i / s.w), k = key(x, y);
