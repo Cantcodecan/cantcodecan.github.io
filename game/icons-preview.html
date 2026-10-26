@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>body{font:14px sans-serif;margin:16px;background:#f4f4f0;color:#222}h2{margin:20px 0 6px}
 .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.c{text-align:center;font-size:11px}svg{display:block}</style></head>
-<body><h1>Gelände und Gebäude</h1><div id="out"></div>
+<body><h1>Piktogramme</h1><div id="out"></div>
 <script src="js/data.js"></script><script src="js/icons.js"></script>
 <script>
 const out = document.getElementById('out');
@@ -21,5 +21,19 @@ for (const t of ['road', 'river']) {
   for (let m = 0; m < 16; m++) h += cell(AW.icons.terrain(t, null, 0, 0, m), m);
   h += '</div>';
 }
+for (const g of ['plain', 'forest', 'sea']) {
+  h += `<h2>Einheiten auf ${AW.TERRAIN[g].name}</h2><div class="row">`;
+  for (const u in AW.UNITS) for (const o of [0, 1]) {
+    const bg = AW.icons.terrain(g, null, 1, 1, 0);
+    h += cell(bg + AW.icons.unit(u, o), AW.UNITS[u].name + ' ' + (o ? 'Rot' : 'Blau'));
+  }
+  h += '</div>';
+}
+h += '<h2>Porträts</h2><div class="row">';
+for (const c in AW.COMMANDERS) {
+  const p = AW.icons.portrait(c);
+  h += `<div class="c"><svg width="128" height="128" viewBox="0 0 64 64">${p}</svg><svg width="48" height="48" viewBox="0 0 64 64">${p}</svg>${AW.COMMANDERS[c].name}</div>`;
+}
+h += '</div>';
 out.innerHTML = h;
 </script></body></html>

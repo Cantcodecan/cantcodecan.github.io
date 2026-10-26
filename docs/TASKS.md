@@ -43,7 +43,7 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Neu: `game/icons-preview.html`: zeigt alle Geländearten × Besitzer und Straßen/Flüsse mit allen 16 Masken in einem Raster (48 px und 28 px).
   - Test: `node -e "require('./game/js/data.js');require('./game/js/icons.js');for(const t in AW.TERRAIN)for(const o of [null,0,1])if(!AW.icons.terrain(t,o,0,0,5).includes('<'))throw t"`
 
-- [ ] **T04 Piktogramme: Einheiten und Porträts**
+- [x] **T04 Piktogramme: Einheiten und Porträts**
   - Lesen: ART.md (Stil, Einheiten, Porträts) · `js/icons.js`
   - In `icons.js`: `unit` und `portrait` voll umsetzen. Vorschau-Seite um alle Einheiten × Teams auf 3 Geländearten und um die Porträts ergänzen.
   - Test: wie T03 sinngemäß für alle `AW.UNITS` × [0,1] und alle `AW.COMMANDERS`. Silhouette-Test aus ART.md per Augenschein in der Vorschau.

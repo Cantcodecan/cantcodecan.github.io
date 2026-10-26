@@ -102,21 +102,132 @@
           return ground(BASE.plain, x, y);
       }
     },
-    // Platzhalter: Kreis in Teamfarbe mit Kürzel (T04 ersetzt dies)
     unit(type, owner) {
       const t = team(owner);
-      const k = (AW.UNITS[type] && AW.UNITS[type].name || type).slice(0, 2);
-      return `<ellipse cx="24" cy="43" rx="16" ry="3" fill="#000" opacity=".25"/>` +
-        `<circle cx="24" cy="26" r="15" fill="${t.color}" stroke="${OUT}" stroke-width="2"/>` +
-        `<text x="24" y="31" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="sans-serif">${k}</text>`;
+      const S = `stroke="${OUT}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"`;
+      const MET = '#5d6b78', METL = '#8a99a8', SKIN = '#f1c9a5', GLASS = '#bfe6ff';
+      const wheel = (cx, cy, r) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${OUT}"/><circle cx="${cx}" cy="${cy}" r="${r / 2}" fill="${METL}"/>`;
+      const track = (x, y, w, h, n) => {
+        let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h / 2}" fill="${t.dark}" ${S}/>`;
+        for (let i = 0; i < n; i++) s += `<circle cx="${x + h / 2 + i * ((w - h) / (n - 1))}" cy="${y + h / 2}" r="${h / 2 - 2}" fill="${METL}"/>`;
+        return s;
+      };
+      const soldier = (x, dark) => {
+        const c = dark ? t.dark : t.color;
+        return `<g ${S}><path d="M${x - 4} 42v-8h8v8" fill="${MET}"/><rect x="${x - 5}" y="22" width="10" height="13" rx="2" fill="${c}"/>` +
+          `<circle cx="${x}" cy="17" r="5" fill="${SKIN}"/><path d="M${x - 6} 17a6 6 0 0 1 12 0z" fill="${c}"/>` +
+          `<path d="M${x + 2} 27L${x + 14} 21" stroke="${MET}" stroke-width="3.5"/></g>`;
+      };
+      let b = '';
+      let sh = `<ellipse cx="24" cy="43" rx="16" ry="3" fill="#000" opacity=".25"/>`;
+      switch (type) {
+        case 'inf':
+          b = soldier(18, true) + soldier(30, false);
+          break;
+        case 'mech':
+          b = `<g ${S}><path d="M13 42v-9h9v9" fill="${MET}"/><rect x="9" y="19" width="14" height="17" rx="3" fill="${t.dark}"/>` +
+            `<rect x="14" y="21" width="13" height="15" rx="3" fill="${t.color}"/><circle cx="23" cy="15" r="5.5" fill="${SKIN}"/>` +
+            `<path d="M17 15a6.5 6.5 0 0 1 13 0z" fill="${t.color}"/>` +
+            `<rect x="14" y="14" width="30" height="6" rx="2" transform="rotate(-12 24 20)" fill="${MET}"/>` +
+            `<path d="M38 8l7-1-1 6z" fill="${t.color}"/></g>`;
+          break;
+        case 'recon':
+          b = `<g ${S}><path d="M6 35v-8l8-2 5-7h12l4 8 7 2v7z" fill="${t.color}"/><path d="M19 18h12l3 7H16z" fill="${GLASS}"/>` +
+            `<path d="M24 25V12h8" fill="none" stroke="${MET}" stroke-width="3"/></g>` + wheel(14, 36, 6) + wheel(36, 36, 6);
+          break;
+        case 'tank':
+          b = track(6, 32, 36, 10, 4) +
+            `<g ${S}><rect x="9" y="25" width="30" height="9" rx="2" fill="${t.color}"/><ellipse cx="22" cy="23" rx="10" ry="6.5" fill="${t.color}"/>` +
+            `<path d="M20 18a8 5 0 0 1 8 0" fill="none" stroke="${t.light}" stroke-width="2"/>` +
+            `<rect x="28" y="20.5" width="18" height="4" rx="1" fill="${MET}"/></g>`;
+          break;
+        case 'heavy':
+          b = `<g ${S}><rect x="4" y="29" width="40" height="13" rx="6" fill="${t.dark}"/></g>` +
+            [11, 18, 25, 32, 38].map((x) => `<circle cx="${x}" cy="36" r="3" fill="${METL}"/>`).join('') +
+            `<g ${S}><rect x="6" y="21" width="36" height="12" rx="2" fill="${t.color}"/><path d="M6 33h36v4H6z" fill="${t.dark}"/>` +
+            `<path d="M12 21l3-10h16l5 10z" fill="${t.color}"/><path d="M15 11h16l2 4H14z" fill="${t.light}"/>` +
+            `<rect x="32" y="13" width="15" height="5.5" rx="1" fill="${MET}"/><rect x="43" y="11.5" width="4" height="8.5" fill="${METL}"/></g>`;
+          break;
+        case 'art':
+          b = track(5, 32, 32, 10, 4) +
+            `<g ${S}><rect x="8" y="25" width="26" height="9" rx="2" fill="${t.color}"/><rect x="12" y="17" width="12" height="9" fill="${t.dark}"/>` +
+            `<g transform="rotate(-45 22 22)"><rect x="19" y="18" width="24" height="7" rx="2" fill="${MET}"/><rect x="40" y="16.5" width="5" height="10" fill="${METL}"/></g></g>`;
+          break;
+        case 'rocket':
+          b = `<g ${S}><rect x="3" y="28" width="42" height="8" rx="2" fill="${t.color}"/><rect x="32" y="21" width="12" height="8" fill="${t.dark}"/>` +
+            `<g transform="rotate(-35 18 26)"><rect x="8" y="19" width="32" height="10" rx="2" fill="${MET}"/>` +
+            [21, 24, 27].map((y) => `<rect x="9" y="${y - 3.5}" width="30" height="3" fill="#fff" stroke-width="1.2"/><path d="M39 ${y - 3.5}l5 1.5-5 1.5z" fill="${t.color}" stroke-width="1.2"/>`).join('') + `</g></g>` +
+            wheel(10, 37, 4.5) + wheel(21, 37, 4.5) + wheel(32, 37, 4.5) + wheel(41, 37, 4.5);
+          break;
+        case 'aa':
+          b = track(5, 32, 34, 10, 4) +
+            `<g ${S}><rect x="8" y="25" width="28" height="9" rx="2" fill="${t.color}"/><rect x="12" y="19" width="14" height="7" fill="${t.dark}"/>` +
+            `<g transform="rotate(-62 20 20)"><rect x="18" y="14" width="22" height="3.5" fill="${MET}"/><rect x="18" y="19" width="22" height="3.5" fill="${MET}"/></g>` +
+            `<path d="M32 25V18" stroke="${MET}"/><ellipse cx="33" cy="14" rx="7" ry="3.5" transform="rotate(-25 33 14)" fill="${METL}"/></g>`;
+          break;
+        case 'heli':
+          sh = `<ellipse cx="24" cy="44" rx="12" ry="2.2" fill="#000" opacity=".25"/>`;
+          b = `<g ${S}><path d="M3 18h12" stroke="${t.dark}" stroke-width="3"/><path d="M4 12v12" stroke="${MET}" stroke-width="2.5"/>` +
+            `<path d="M10 22q0-9 14-9 11 0 14 10-3 9-15 9-13 0-13-10z" fill="${t.color}"/><path d="M26 15q9 0 12 8h-12z" fill="${GLASS}"/>` +
+            `<path d="M10 22L2 20l1 6 8 0" fill="${t.dark}"/><path d="M24 13V9"/><ellipse cx="24" cy="8" rx="20" ry="2.2" fill="${METL}"/>` +
+            `<path d="M14 37h22M20 31v6M30 31v6" fill="none"/><path d="M33 29h8" stroke="${MET}" stroke-width="3"/></g>`;
+          break;
+        case 'fighter':
+          sh = `<ellipse cx="24" cy="44" rx="12" ry="2.2" fill="#000" opacity=".25"/>`;
+          b = `<path d="M1 26l7-3v6z" fill="#ffb547" stroke="${OUT}" stroke-width="1.5"/>` +
+            `<g ${S}><path d="M6 21L2 11h6l10 8z" fill="${t.dark}"/><path d="M6 26h26l13 3-13 4H6z" fill="${t.color}"/>` +
+            `<path d="M12 26l14-3 8 3z" fill="${t.light}"/><path d="M14 31L24 41h6L28 33z" fill="${t.dark}"/><path d="M30 26q5-5 11-1l-3 4z" fill="${GLASS}"/></g>`;
+          break;
+        case 'bomber':
+          sh = `<ellipse cx="24" cy="44" rx="16" ry="2.4" fill="#000" opacity=".25"/>`;
+          b = `<g ${S}><path d="M4 22l-3-9h6l5 9z" fill="${t.dark}"/><rect x="4" y="21" width="38" height="11" rx="5" fill="${t.color}"/>` +
+            `<path d="M36 22q6 0 7 5l-6 1z" fill="${GLASS}"/><path d="M13 28L22 39h10L26 28z" fill="${t.dark}"/>` +
+            `<rect x="16" y="36" width="10" height="6" rx="2" fill="${MET}"/><rect x="30" y="34" width="9" height="6" rx="2" fill="${MET}"/>` +
+            `<rect x="14" y="31" width="14" height="3.5" fill="#2b3340" stroke-width="1.2"/></g>`;
+          break;
+        default:
+          b = `<circle cx="24" cy="26" r="12" fill="${t.color}" ${S}/>`;
+      }
+      const inner = sh + b;
+      return owner === 1 ? `<g transform="translate(48 0) scale(-1 1)">${inner}</g>` : inner;
     },
-    // Platzhalter: Kreis mit Initialen (T04 ersetzt dies)
     portrait(coId) {
+      const S = `stroke="${OUT}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"`;
+      const SKIN = '#f1c9a5';
       const c = AW.COMMANDERS[coId];
-      const t = AW.FACTIONS[c ? c.faction : 0];
-      const ini = (c ? c.name : '?').split(' ').map((s) => s[0]).join('').slice(0, 2);
-      return `<rect width="64" height="64" fill="${t.light}"/><circle cx="32" cy="32" r="26" fill="${t.color}" stroke="${OUT}" stroke-width="2"/>` +
-        `<text x="32" y="40" text-anchor="middle" font-size="24" font-weight="700" fill="#fff" font-family="sans-serif">${ini}</text>`;
+      const f = AW.FACTIONS[c ? c.faction : 0];
+      const bg = `<rect width="64" height="64" fill="${f.light}"/>`;
+      const shoulders = (col, extra) => `<path d="M6 64q2-18 26-18t26 18z" fill="${col}" ${S}/>` + (extra || '');
+      const face = `<path d="M22 28q0 16 10 16t10-16q0-6-10-6t-10 6z" fill="${SKIN}" ${S}/>`;
+      const eyes = (y) => `<circle cx="27" cy="${y}" r="1.6" fill="${OUT}"/><circle cx="37" cy="${y}" r="1.6" fill="${OUT}"/>`;
+      switch (coId) {
+        case 'mira':
+          return bg + shoulders(f.color, `<path d="M26 47l6 6 6-6" fill="${f.light}" ${S}/>`) + face +
+            `<path d="M20 30q-3-16 12-16t12 16q-3-8-12-9-8 1-12 9z" fill="#a8532b" ${S}/><path d="M20 30q-2 6 0 10" fill="none" stroke="#a8532b" stroke-width="4"/>` +
+            `<rect x="23" y="17" width="18" height="5" rx="2.5" fill="#5d6b78" ${S}/><rect x="25" y="18" width="14" height="3" rx="1.5" fill="#bfe6ff"/>` +
+            eyes(31) + `<path d="M26 28l4 1M38 28l-4 1" stroke="${OUT}" stroke-width="1.6"/><path d="M29 38q3 1.5 6 0" stroke="${OUT}" stroke-width="1.6" fill="none"/>`;
+        case 'tarek':
+          return bg + shoulders(f.color, `<circle cx="20" cy="54" r="2.5" fill="#ffb547"/><circle cx="26" cy="57" r="2.5" fill="#fff"/><path d="M26 47l6 6 6-6" fill="${f.light}" ${S}/>`) + face +
+            `<path d="M21 26q-1-8 11-8t11 8q-3-3-11-3t-11 3z" fill="#9aa4ae" ${S}/>` +
+            `<path d="M19 24q0-12 13-12t13 12z" fill="${f.dark}" ${S}/><path d="M17 24h30v4H17z" fill="${f.dark}" ${S}/><circle cx="32" cy="19" r="2.5" fill="#ffb547"/>` +
+            eyes(31) + `<path d="M24 29l5 1M40 29l-5 1" stroke="#9aa4ae" stroke-width="2"/><path d="M25 37q7-4 14 0-3 3-7 1.5-4 1.5-7-1.5z" fill="#9aa4ae" ${S}/>`;
+        case 'varek':
+          return bg + shoulders(f.color, `<rect x="6" y="48" width="12" height="5" fill="#ffb547" ${S}/><rect x="46" y="48" width="12" height="5" fill="#ffb547" ${S}/>`) +
+            `<path d="M21 28q0 17 11 17t11-17q0-6-11-6t-11 6z" fill="${SKIN}" ${S}/>` +
+            `<path d="M19 24q0-12 13-12t13 12z" fill="${f.dark}" ${S}/><path d="M17 24h30v4H17z" fill="${f.dark}" ${S}/>` +
+            `<path d="M32 15l1.4 2.9 3.1.4-2.3 2.2.6 3.1-2.8-1.5-2.8 1.5.6-3.1-2.3-2.2 3.1-.4z" fill="#ffb547"/>` +
+            eyes(32) + `<path d="M23 30l6 2M41 30l-6 2" stroke="${OUT}" stroke-width="2.2"/><path d="M38 27l4 9" stroke="#b5483a" stroke-width="2"/>` +
+            `<path d="M28 40h8" stroke="${OUT}" stroke-width="2"/>`;
+        case 'sel':
+          return bg + shoulders('#8a2b25', `<path d="M24 46l8 18 8-18" fill="#ece6d6" ${S}/><path d="M32 52v12" stroke="${OUT}" stroke-width="1.5"/>`) +
+            `<path d="M17 36q-3-22 15-22t15 22v6H17z" fill="#1d2330" ${S}/>` + face +
+            `<path d="M22 27q10-1 10-9 4 8 10 9-1-8-10-11-9 3-10 11z" fill="#1d2330" ${S}/>` +
+            `<rect x="23" y="29" width="8" height="5.5" rx="2" fill="#bfe6ff" fill-opacity=".5" stroke="${OUT}" stroke-width="1.5"/><rect x="33" y="29" width="8" height="5.5" rx="2" fill="#bfe6ff" fill-opacity=".5" stroke="${OUT}" stroke-width="1.5"/>` +
+            `<path d="M31 31h2" stroke="${OUT}" stroke-width="1.5"/><path d="M24.5 30.5l3-1" stroke="#fff" stroke-width="1.2"/><circle cx="27" cy="32" r="1.3" fill="${OUT}"/><circle cx="37" cy="32" r="1.3" fill="${OUT}"/>` +
+            `<path d="M28 39q4 3 8 0" stroke="${OUT}" stroke-width="1.6" fill="none"/>`;
+        default:
+          return bg + shoulders(f.color) + face + eyes(31);
+      }
     },
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
