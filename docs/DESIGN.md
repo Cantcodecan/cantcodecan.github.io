@@ -92,6 +92,8 @@ Stein-Schere-Papier wie in Advance Wars. Die genauen Werte stehen in `UNITS`/`DA
 
 **Balancing-Lauf (T11, `node game/test/selfplay.js normal normal 20`):** Gespiegelte Karten, gleiche Stufe: Seite 0 (Anzugsrecht) gewinnt auf m2, m5, m6, s1 immer, Seite 1 auf m3, m4 – der Verlauf ist bei festem KI-Zufall je Karte identisch, also Anzugsvorteil, kein Kartenfehler. Echte Karten sind asymmetrisch gewollt; keine Kartenänderung. Gebaut (120 Partien): inf 920, mech 2280, recon 120, tank 1160, heavy 20, art 380, rocket 0, aa 500, heli 680, fighter 0, bomber 0. Rocket/Fighter/Bomber/Heavy sind bei Startgeld 3000–5000 und 1000/Gebäude kaum bezahlbar, die Partien enden vorher; Test mit −15 % Kosten (Rocket 12750, Jäger 17000, Bomber 18700) änderte nichts → `cost` unverändert.
 
+**Balancing teure Einheiten (T17, `selfplay.js normal normal 10 10000`):** Baseline bei Startgeld 10000: heavy/rocket/fighter/bomber alle 0 gebaut. Versucht: (a) `chooseBuilds` spart bei reichlich Geld für eine zu teure, nützlichere Einheit (≤ 3 Runden Einkommen), (b) `cost` heavy/rocket/fighter/bomber −20 % (12800/12000/16000/17600), (c) Gegenschlag-Term für Indirekte × 0,3. Mit (a)+(b) wurden heavy, bomber und teils fighter gebaut (rocket nie), aber `hard normal` fiel auf 58–83 % und `brutal hard` auf 58–67 % (Baseline 92 %/75 %); (b) allein: `brutal hard` 67 %; (c) allein: `hard normal` 58–67 %. Die Abnahmen haben Vorrang, daher alles verworfen: `ai.js` und `data.js` unverändert, Stand bei 10000 weiterhin 0 der vier Typen. Neu nur `selfplay.js` mit 4. Argument Startgeld.
+
 ## 9. Spielmodi
 
 - **Kampagne:** M1–M6 nacheinander freigeschaltet. Fortschritt in `localStorage` (in try/catch). Schwierigkeit wählbar vor jeder Mission.

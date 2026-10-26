@@ -124,7 +124,8 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Bomber: breiter Rumpf, gerade Flügel sichtbar, 2 Triebwerke an den Flügeln, Bombenschacht. Späher: offenes Verdeck, MG auf Halterung. Raketen: Spitzen teamfarben. Schwerer Panzer: Schürzen über der Kette, Rohr innerhalb der 48er-Box.
   - Test: T04-Test; Vorschau-Screenshot selbst ansehen, kein Element ragt aus der Box.
 
-- [ ] **T17 Balancing: teure Einheiten** 🧠
+- [x] **T17 Balancing: teure Einheiten** 🧠
+  - Ergebnis: Ziel (alle vier Typen gebaut) nicht erreicht; KI- und Kostenänderungen verschlechterten `hard normal`/`brutal hard` und wurden verworfen, Details in DESIGN.md §8. Nur `selfplay.js` hat das 4. Argument Startgeld.
   - Befund (Self-Play, alle Stufen): Raketenwerfer, Jäger, Bomber werden nie, Schwerer Panzer fast nie gebaut. `brutal hard` liegt mit 75 % genau auf der Grenze.
   - Lesen: AI.md (Produktion, Abnahme) · DESIGN.md §8 · `test/selfplay.js` · in `js/ai.js` nur `chooseBuilds`
   - `selfplay.js`: optionales 4. Argument Startgeld (Standard wie bisher). Mit 10000 prüfen, ob die teuren Typen gebaut werden. Erlaubt: `chooseBuilds` so ändern, dass bei reichlich Geld nicht nur nach Nutzen/Kosten gewählt wird (z. B. Sparen für eine teure Einheit, wenn ihr Nutzen deutlich höher ist), sowie `cost` von rocket/fighter/bomber/heavy um höchstens 20 % senken. Jede Änderung als Zeile in DESIGN.md §8.

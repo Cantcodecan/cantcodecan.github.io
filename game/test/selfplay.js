@@ -1,4 +1,4 @@
-// KI gegen KI. Aufruf: node game/test/selfplay.js levelA levelB games
+// KI gegen KI. Aufruf: node game/test/selfplay.js levelA levelB games [startgeld]
 // games = Partien je Karte, Seiten wechseln. Ausgabe: Siegquote von A, ms/Zug.
 require('../js/data.js');
 require('../js/missions.js');
@@ -6,7 +6,7 @@ require('../js/rules.js');
 require('../js/ai.js');
 const AW = globalThis.AW, R = AW.rules;
 
-const [levelA = 'normal', levelB = 'easy', games = '10'] = process.argv.slice(2);
+const [levelA = 'normal', levelB = 'easy', games = '10', fundsArg] = process.argv.slice(2);
 const N = +games;
 
 // Kampagnenkarten sind asymmetrisch. Fürs Messen: linke Hälfte (mit Azur-HQ) an der Mittelachse spiegeln, Besitzer tauschen,
@@ -30,7 +30,7 @@ function symmetric(m) {
     seen.add(lx + ',' + y);
     out.push([t, 0, lx, y], [t, 1, w - 1 - lx, y]);
   }
-  const f = Math.max(3000, ...(m.funds || [0]));
+  const f = fundsArg ? +fundsArg : Math.max(3000, ...(m.funds || [0]));
   return { ...m, map, units: out, funds: [f, f], co: ['mira', 'mira'], objective: { type: 'rout' } };
 }
 // m1: Panzer stehen 5 Felder auseinander, wer zuerst zieht, gewinnt den Erstschlag (jede Stufe ~50 %). Wird angezeigt, aber nicht gewertet.
