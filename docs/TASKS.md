@@ -87,7 +87,8 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Touch: Tippen = Klick, langes Tippen = Info. Knopf „Rückgängig“ für die letzte Bewegung ohne Aktion. Optionale Kurz-Animationen (Einstellung „schnell“). Bestätigung vor „Zug beenden“, wenn noch Einheiten frei sind. Hell/dunkel-Darstellung des Rahmens (`prefers-color-scheme`). Kein horizontales Seitenscrollen bei 360 px Breite.
   - Test: Playwright-Screenshot bei 360×740 und 1280×800, Smoke-Test grün.
 
-- [ ] **T11 Balancing-Lauf** 🧠
+- [x] **T11 Balancing-Lauf** 🧠
+  - Annahme: Siegquote je Seite zeigt nur Anzugsvorteil (feste Seeds); keine Karten-/Kostenänderung, Begründung in DESIGN.md §8.
   - Lesen: AI.md (Abnahme) · DESIGN.md §8
   - `selfplay.js` um Statistik erweitern: gebaute Einheiten je Typ, Siegquote je Seite und Karte. Wenn eine Seite einer Karte > 70 % gewinnt (gleiche Stufe), die Karte in `missions.js` anpassen (Startgeld oder Gebäude). Wenn ein Einheitentyp nie oder immer gebaut wird, `cost` in `data.js` um höchstens ±15 % ändern. Jede Änderung als Zeile in DESIGN.md §8 dokumentieren.
   - Test: alle Tests und alle Abnahmen aus AI.md grün.

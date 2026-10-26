@@ -46,22 +46,26 @@ function play(mapDef, aSide) {
     const t0 = Date.now();
     const plan = AW.ai.planTurn(s, levels[s.turn]);
     ms += Date.now() - t0; turns++;
-    for (const a of plan) { R.apply(s, a); if (s.winner !== null) break; }
+    for (const a of plan) { if (a.type === 'build') builds[a.unit] = (builds[a.unit] || 0) + 1; R.apply(s, a); if (s.winner !== null) break; }
     if (turns > 400) throw new Error('Partie endet nicht: ' + mapDef.id);
   }
   return { winner: s.winner, ms, turns, days: s.day };
 }
 
+const builds = {};
 let wins = 0, draws = 0, total = 0, ms = 0, turns = 0;
 for (const m of maps) {
   let w = 0;
+  const side = [0, 0];
   for (let i = 0; i < N; i++) {
     const aSide = i % 2, r = play(m, aSide);
     total++; ms += r.ms; turns += r.turns;
+    if (r.winner === 0 || r.winner === 1) side[r.winner]++;
     if (r.winner === aSide) w++; else if (r.winner === 'draw') draws++;
   }
-  console.log(`${m.id.padEnd(3)} ${levelA} gewinnt ${w}/${N}${UNRATED.has(m.id) ? ' (nicht gewertet)' : ''}`);
+  console.log(`${m.id.padEnd(3)} ${levelA} gewinnt ${w}/${N}${UNRATED.has(m.id) ? ' (nicht gewertet)' : ''} · Seite 0: ${side[0]}, Seite 1: ${side[1]}`);
   if (UNRATED.has(m.id)) { total -= N; continue; }
   wins += w;
 }
 console.log(`${levelA} vs ${levelB}: ${(100 * wins / total).toFixed(0)} % (${wins}/${total}, ${draws} unentschieden), ${(ms / turns).toFixed(0)} ms/Zug`);
+console.log('Gebaut: ' + Object.keys(AW.UNITS).map((t) => `${t} ${builds[t] || 0}`).join(', '));

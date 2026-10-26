@@ -90,6 +90,8 @@ Stein-Schere-Papier wie in Advance Wars. Die genauen Werte stehen in `UNITS`/`DA
 | Jäger | Hubschrauber, Bomber | kann Boden nicht angreifen |
 | Bomber | alles am Boden | Flak, Jäger, kann Luft nicht angreifen |
 
+**Balancing-Lauf (T11, `node game/test/selfplay.js normal normal 20`):** Gespiegelte Karten, gleiche Stufe: Seite 0 (Anzugsrecht) gewinnt auf m2, m5, m6, s1 immer, Seite 1 auf m3, m4 – der Verlauf ist bei festem KI-Zufall je Karte identisch, also Anzugsvorteil, kein Kartenfehler. Echte Karten sind asymmetrisch gewollt; keine Kartenänderung. Gebaut (120 Partien): inf 920, mech 2280, recon 120, tank 1160, heavy 20, art 380, rocket 0, aa 500, heli 680, fighter 0, bomber 0. Rocket/Fighter/Bomber/Heavy sind bei Startgeld 3000–5000 und 1000/Gebäude kaum bezahlbar, die Partien enden vorher; Test mit −15 % Kosten (Rocket 12750, Jäger 17000, Bomber 18700) änderte nichts → `cost` unverändert.
+
 ## 9. Spielmodi
 
 - **Kampagne:** M1–M6 nacheinander freigeschaltet. Fortschritt in `localStorage` (in try/catch). Schwierigkeit wählbar vor jeder Mission.
