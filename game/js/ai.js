@@ -1,4 +1,4 @@
-// KI-Gegner (Leicht, Mittel, Schwer; Sehr schwer folgt). Kein DOM, nutzt nur AW.rules. Regeln: docs/AI.md
+// KI-Gegner (Leicht, Mittel, Schwer, Sehr schwer). Kein DOM, nutzt nur AW.rules. Regeln: docs/AI.md
 (function (g) {
   const AW = (g.AW = g.AW || {});
   const R = AW.rules;
@@ -11,13 +11,13 @@
   // Bedrohung ist in % Basisschaden summiert; der Faktor bringt sie auf die Größenordnung der Distanzstrafe (siehe AI.md)
   const THREAT_SCALE = 10;
 
-  // Parameter je Stufe; Sehr schwer nutzt vorerst die Werte von Schwer
+  // Parameter je Stufe; Sehr schwer = Schwer plus Beam-Search
   const LEVELS = {
     easy:   { counterWeight: 0, threatWeight: 0, random: true },
     normal: { counterWeight: 1, threatWeight: 0.5 },
     hard:   { counterWeight: 1.2, threatWeight: 1, global: true },
   };
-  LEVELS.brutal = LEVELS.hard;
+  LEVELS.brutal = { ...LEVELS.hard, beam: true, beamWidth: 8, branch: 3, counterTop: 0, pathWeight: 1, timeBudgetMs: 1200 };
 
   // Bewegungskosten-Distanz von allen Feldern zu den Zielfeldern (ohne Einheiten)
   function distanceMap(s, moveType, targets) {
@@ -264,6 +264,70 @@
     return { s, actions, value: evaluate(s, p) };
   }
 
+  // Beam-Search über den ganzen Zug (AI.md, Sehr schwer)
+  function planBeam(state, params) {
+    const t0 = Date.now(), p = state.turn, used = () => Date.now() - t0;
+    const makeCtx = (s) => {
+      const danger = hqDanger(s, p);
+      return { p, params, maps: distanceMaps(s, p), threat: threatMap(s, p), hq: danger.hq, hqThreat: danger.threat, hqGuard: danger.threat.size > 0 };
+    };
+    const sig = (s) => s.units.map((u) => u.x + ',' + u.y + ',' + u.hp + (u.acted ? 'a' : '')).sort().join('|') + s.players[p].charge + (s.players[p].powerActive ? 'P' : '');
+    const start = (usePower) => {
+      const s = R.clone(state), actions = [];
+      if (usePower) { R.apply(s, { type: 'power' }); actions.push({ type: 'power' }); }
+      return { s, actions, ctx: makeCtx(s), v: 0, g: 0 };
+    };
+    let beam = [start(false)];
+    if (powerReady(state)) beam.push(start(true));
+    const done = [];
+    while (beam.length) {
+      const late = used() > params.timeBudgetMs * 0.6, urgent = used() > params.timeBudgetMs * 0.9;
+      const width = late ? params.beamWidth / 2 : params.beamWidth, branch = urgent ? 1 : late ? 2 : params.branch;
+      const next = new Map();
+      for (const st of beam) {
+        const bestPerUnit = [];
+        if (st.s.winner === null) {
+          for (const u of st.s.units) {
+            if (u.owner !== p || u.acted) continue;
+            let b = null;
+            for (const c of scoreActions(st.s, u, st.ctx)) if (!b || c.score > b.score) b = c;
+            if (b) bestPerUnit.push(b);
+          }
+        }
+        if (!bestPerUnit.length) { done.push(st); continue; }
+        bestPerUnit.sort((a, b) => b.score - a.score);
+        for (const c of bestPerUnit.slice(0, branch)) {
+          const s = R.clone(st.s), before = s.units.length;
+          R.apply(s, c.action);
+          const ctx = s.units.length < before ? { ...st.ctx, threat: threatMap(s, p) } : st.ctx;
+          const g = st.g + c.score, ns = { s, actions: [...st.actions, c.action], ctx, g, v: evaluate(s, p) + params.pathWeight * g };
+          const k = sig(s);
+          if (!next.has(k) || next.get(k).v < ns.v) next.set(k, ns);
+        }
+      }
+      beam = [...next.values()].sort((a, b) => b.v - a.v).slice(0, width);
+    }
+    for (const st of done) {
+      if (st.s.winner === null) st.actions.push(...chooseBuilds(st.s, st.ctx));
+      st.v = evaluate(st.s, p);
+    }
+    done.sort((a, b) => b.v - a.v);
+    let best = done[0];
+    // Gegenzug-Check: Gegner mit Stufe Mittel simulieren, Zustand danach neu bewerten
+    let bestV = -Infinity;
+    for (const st of done.slice(0, params.counterTop)) {
+      if (st.s.winner !== null) { best = st; break; }
+      if (used() > params.timeBudgetMs && bestV > -Infinity) break;
+      const s = R.clone(st.s);
+      R.apply(s, { type: 'end' });
+      if (s.winner === null) for (const a of planTurn(s, 'normal')) { R.apply(s, a); if (s.winner !== null) break; }
+      const v = evaluate(s, p) + params.pathWeight * st.g;
+      if (v > bestV) { bestV = v; best = st; }
+    }
+    if (best.s.winner === null) best.actions.push({ type: 'end' });
+    return best.actions;
+  }
+
   function planHard(state, params) {
     let best = planGreedy(state, params, false);
     if (powerReady(state)) {
@@ -278,6 +342,7 @@
     const rng = opts.rng || Math.random;
     const params = LEVELS[level];
     if (!params) throw new Error('Unbekannte KI-Stufe: ' + level);
+    if (params.beam) return planBeam(state, params);
     if (params.global) return planHard(state, params);
     const s = R.clone(state), p = s.turn, actions = [];
     const run = (a) => { R.apply(s, a); actions.push(a); };

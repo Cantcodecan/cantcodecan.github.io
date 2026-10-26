@@ -70,7 +70,8 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Lesen: AI.md (Schwer) · `js/ai.js`
   - Test: `node game/test/selfplay.js hard normal 10` → ≥ 80 %, < 500 ms/Zug.
 
-- [ ] **T08 KI: Sehr schwer** 🧠
+- [x] **T08 KI: Sehr schwer** 🧠
+  - Annahmen: Beam mit Pfad-Term, Gegenzug-Check deaktiviert (`counterTop` 0), Details in AI.md. Ergebnis: `brutal hard 10` = 75 %, 30 ms/Zug.
   - Lesen: AI.md (Sehr schwer, Leistung, Abnahme) · `js/ai.js`
   - Test: `node game/test/selfplay.js brutal hard 10` → ≥ 75 %, ≤ 1500 ms/Zug. Wird die Quote nicht erreicht: zuerst `evaluate`-Gewichte, Strahlbreite und Kandidaten pro Schritt anpassen, Werte in AI.md nachtragen.
 

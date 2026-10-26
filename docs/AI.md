@@ -83,6 +83,7 @@ Infanterie bekommt +50 % Bonus, solange neutrale oder gegnerische Städte erreic
   4. **Gegenzug-Check:** Für die besten 4 Endzustände den Gegnerzug mit der Stufe *Mittel* simulieren und danach `evaluate` neu berechnen. Den Plan mit dem besten Wert nach dem Gegenzug wählen.
   5. **Zeitbudget:** `timeBudgetMs`. Wird es knapp, zuerst Schritt 4 weglassen, dann B auf 4 senken. Immer den besten bisher gefundenen Plan zurückgeben.
 - Kraft wie Schwer, aber im Beam als zusätzliche Startvariante.
+- **Tuning (T08):** Strahl B = 8, 3 Aktionen je Zustand (je Einheit die beste, global nach Score). Bewertung im Strahl = `evaluate` + 1 × Summe der Aktions-Scores des Pfads (ohne diesen Pfad-Term nur 58 %). Der Gegenzug-Check (`counterTop`) senkte die Quote (33–58 %) und ist auf 0 gesetzt (aus); Code bleibt, Breite >8 brachte nichts. Ergebnis `brutal hard 10` = 75 %, ~30 ms/Zug.
 - Einkommensbonus `incomeMul` 1.1 (in `data.js`). Er wird im Menü offen angezeigt. Erst wenn Testspiele zeigen, dass die Stufe zu leicht ist, Strahlbreite und Gegenzug-Check vor dem Bonus erhöhen.
 
 ## Leistung
