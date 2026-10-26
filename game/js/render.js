@@ -9,7 +9,7 @@
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const dispHp = (hp) => Math.ceil(hp / 10);
 
-  // Bits: oben 1, rechts 2, unten 4, links 8
+  // Bits: oben 1, rechts 2, unten 4, links 8; Fluss zusätzlich Diagonalen 16/32/64/128
   function neighborMask(s, x, y, terrain) {
     const joins = {
       road: (t) => t === 'road' || !!AW.TERRAIN[t].property,
@@ -21,6 +21,13 @@
       const t = s.tiles[(y + dy) * s.w + x + dx];
       if (x + dx >= 0 && x + dx < s.w && y + dy >= 0 && y + dy < s.h && t && joins(t.terrain)) m |= bit;
     });
+    if (terrain === 'river') {
+      const at = (dx, dy) => { const t = s.tiles[(y + dy) * s.w + x + dx]; return x + dx >= 0 && x + dx < s.w && y + dy >= 0 && y + dy < s.h && !!t && joins(t.terrain); };
+      // Diagonal-Bits: oben-rechts 16, unten-rechts 32, unten-links 64, oben-links 128
+      [[1, -1, 16, 2, 1], [1, 1, 32, 2, 4], [-1, 1, 64, 8, 4], [-1, -1, 128, 8, 1]].forEach(([dx, dy, bit, a, b]) => {
+        if ((m & a) && (m & b) && at(dx, dy)) m |= bit;
+      });
+    }
     return m;
   }
 

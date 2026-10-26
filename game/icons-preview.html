@@ -4,7 +4,7 @@
 <style>body{font:14px sans-serif;margin:16px;background:#f4f4f0;color:#222}h2{margin:20px 0 6px}
 .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.c{text-align:center;font-size:11px}svg{display:block}</style></head>
 <body><h1>Miniwars</h1><div id="out"></div>
-<script src="js/data.js"></script><script src="js/icons.js"></script>
+<script src="js/data.js"></script><script src="js/icons.js"></script><script src="js/render.js"></script>
 <script>
 const out = document.getElementById('out');
 const svg = (inner, px) => `<svg width="${px}" height="${px}" viewBox="0 0 48 48">${inner}</svg>`;
@@ -19,6 +19,13 @@ for (const t in AW.TERRAIN) {
 for (const t of ['road', 'river']) {
   h += `<h2>${AW.TERRAIN[t].name}: 16 Masken</h2><div class="row">`;
   for (let m = 0; m < 16; m++) h += cell(AW.icons.terrain(t, null, 0, 0, m), m);
+  h += '</div>';
+}
+for (const n of [2, 3]) {
+  h += `<h2>Fluss ${n}×${n}</h2><div style="display:grid;grid-template-columns:repeat(${n},48px)">`;
+  const st = { w: n + 2, h: n + 2, tiles: [] };
+  for (let y = 0; y < st.h; y++) for (let x = 0; x < st.w; x++) st.tiles.push({ terrain: x && y && x <= n && y <= n ? 'river' : 'plain' });
+  for (let y = 1; y <= n; y++) for (let x = 1; x <= n; x++) h += svg(AW.icons.terrain('river', null, x, y, AW.render.neighborMask(st, x, y, 'river')), 48);
   h += '</div>';
 }
 for (const g of ['plain', 'forest', 'sea']) {

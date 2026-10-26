@@ -100,7 +100,7 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Smoke-Test: prüft `<title>` und `<h1>` = „Miniwars“.
   - Test: `grep -rn Eisenfront game docs` liefert nur die Zeile mit dem alten Speicherschlüssel; `node game/test/smoke.js`
 
-- [ ] **T13 Fehler (mittel): Flussflächen werden als Ring gezeichnet**
+- [x] **T13 Fehler (mittel): Flussflächen werden als Ring gezeichnet**
   - Befund: 2×2-Flussblock (Gefecht „Zwei Ufer“, Kartenmitte) erscheint als hohles blaues Quadrat mit Gras in der Mitte.
   - Lesen: ART.md (Gelände, Straßen und Flüsse) · `js/render.js` (`neighborMask`) · in `js/icons.js` nur die Fluss-Funktion
   - `neighborMask` liefert für Fluss zusätzlich Diagonal-Bits (oben-rechts 16, unten-rechts 32, unten-links 64, oben-links 128, nur gesetzt, wenn beide angrenzenden Orthogonalen auch Fluss sind). Der Fluss füllt bei gesetztem Diagonal-Bit die betreffende Ecke, sodass zusammenhängende Flächen als See erscheinen. Straßen ignorieren die neuen Bits. Vorschau-Seite: zusätzlich ein 2×2- und ein 3×3-Flussblock.

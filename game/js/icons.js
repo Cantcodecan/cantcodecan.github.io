@@ -21,6 +21,11 @@
     if (m & 4) s += `<rect x="${24 - w / 2}" y="24" width="${w}" height="24" fill="${col}"/>`;
     if (m & 8) s += `<rect x="0" y="${24 - w / 2}" width="24" height="${w}" fill="${col}"/>`;
     if (m & 2) s += `<rect x="24" y="${24 - w / 2}" width="24" height="${w}" fill="${col}"/>`;
+    // Diagonal-Bits (nur Fluss): Ecke füllen -> zusammenhängende Fläche
+    if (m & 16) s += `<rect x="24" y="0" width="24" height="24" fill="${col}"/>`;
+    if (m & 32) s += `<rect x="24" y="24" width="24" height="24" fill="${col}"/>`;
+    if (m & 64) s += `<rect x="0" y="24" width="24" height="24" fill="${col}"/>`;
+    if (m & 128) s += `<rect x="0" y="0" width="24" height="24" fill="${col}"/>`;
     return s;
   };
   const dashes = (mask, col) => {
@@ -90,7 +95,7 @@
         case 'mountain':
           return ground(BASE.plain, x, y) + ((x + y) % 2 ? mount(16, 32, 1) + mount(33, 36, .8) : mount(26, 30, 1.2));
         case 'river': {
-          return ground(BASE.plain, x, y) + band(mask, 18, '#5aa7e0') + band(mask, 6, '#a8dcfa');
+          return ground(BASE.plain, x, y) + band(mask, 18, '#5aa7e0') + ((mask || 0) > 15 ? '' : band(mask, 6, '#a8dcfa'));
         }
         case 'sea': {
           const v = (x * 7 + y * 13) % 3;
