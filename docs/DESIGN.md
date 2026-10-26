@@ -1,4 +1,4 @@
-# Eisenfront – Die Valdur-Krise · Spieldesign
+# Miniwars – Die Valdur-Krise · Spieldesign
 
 Werte stehen nur in `game/js/data.js`, Karten und Dialoge nur in `game/js/missions.js`. Dieses Dokument erklärt die Regeln; bei Widerspruch gelten die Daten.
 

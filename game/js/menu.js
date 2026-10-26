@@ -2,7 +2,7 @@
 (function (g) {
   const AW = (g.AW = g.AW || {});
   const $ = (id) => document.getElementById(id);
-  const SAVE = 'eisenfront.campaign';
+  const SAVE = 'miniwars.campaign', OLD_SAVE = 'eisenfront.campaign';
   const LEVEL_DESC = {
     easy: 'Zögerlich, baut wenig. Guter Einstieg.',
     normal: 'Solide Taktik, nimmt Gebäude ein.',
@@ -19,7 +19,7 @@
 
   // Fortschritt: Anzahl freigeschalteter Missionen (mind. 1)
   function unlocked() {
-    try { return Math.max(1, Math.min(AW.MISSIONS.length, +localStorage.getItem(SAVE) || 1)); } catch (e) { return 1; }
+    try { return Math.max(1, Math.min(AW.MISSIONS.length, Math.max(+localStorage.getItem(SAVE) || 1, +localStorage.getItem(OLD_SAVE) || 1))); } catch (e) { return 1; }
   }
   function unlock(n) {
     try { if (n > unlocked()) localStorage.setItem(SAVE, String(n)); } catch (e) { /* ohne Speicher spielbar */ }
@@ -48,7 +48,7 @@
       { label: 'Hot-Seat', fn: () => skirmish(true) },
       { label: 'Regeln', fn: rules },
     ];
-    show(`<h1>Eisenfront</h1><p class="sub">Die Valdur-Krise</p><div class="list">${buttons(items)}</div>`, (el) => bind(el, items));
+    show(`<h1>Miniwars</h1><p class="sub">Die Valdur-Krise</p><div class="list">${buttons(items)}</div>`, (el) => bind(el, items));
   }
 
   function campaign() {

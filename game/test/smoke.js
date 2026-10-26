@@ -13,6 +13,8 @@ const { chromium } = require('playwright');
   await page.goto('file://' + path.resolve(__dirname, '../index.html'));
   // Hauptmenü → Gefecht (Hot-Seat)
   await page.waitForSelector('#screen.show');
+  assert.strictEqual(await page.title(), 'Miniwars');
+  assert.strictEqual((await page.textContent('#screen h1')).trim(), 'Miniwars');
   await page.getByRole('button', { name: 'Hot-Seat' }).click();
   await page.getByRole('button', { name: 'Start' }).click();
   await page.waitForSelector('.unit');

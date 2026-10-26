@@ -93,7 +93,7 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - `selfplay.js` um Statistik erweitern: gebaute Einheiten je Typ, Siegquote je Seite und Karte. Wenn eine Seite einer Karte > 70 % gewinnt (gleiche Stufe), die Karte in `missions.js` anpassen (Startgeld oder Gebäude). Wenn ein Einheitentyp nie oder immer gebaut wird, `cost` in `data.js` um höchstens ±15 % ändern. Jede Änderung als Zeile in DESIGN.md §8 dokumentieren.
   - Test: alle Tests und alle Abnahmen aus AI.md grün.
 
-- [ ] **T12 Umbenennung zu „Miniwars“**
+- [x] **T12 Umbenennung zu „Miniwars“**
   - Lesen: `game/index.html` (Titel), `game/icons-preview.html` (nur `<title>`/`<h1>`), `js/menu.js` (`SAVE`, `main`), DESIGN.md Kopfzeile, `test/smoke.js`
   - Spielname überall „Miniwars“: `<title>` beider Seiten, Hauptmenü `<h1>Miniwars</h1>`, Untertitel bleibt „Die Valdur-Krise“ (Kampagnenname), DESIGN.md-Überschrift „Miniwars – Die Valdur-Krise · Spieldesign“. Story-Texte in `missions.js` nur ändern, wenn „Eisenfront“ vorkommt.
   - Speicherstand: `SAVE = 'miniwars.campaign'`; `unlocked()` liest zusätzlich den alten Schlüssel `eisenfront.campaign` (Maximum beider), damit Fortschritt erhalten bleibt.
