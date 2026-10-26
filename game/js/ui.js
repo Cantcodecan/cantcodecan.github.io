@@ -11,9 +11,11 @@
 
   function start(mapDef, opts) {
     S.state = R.newGame(mapDef, opts || { co: ['mira', 'varek'] });
+    S.busy = false;
     $('overlay').classList.remove('show');
     reset();
     refresh();
+    maybeAi();
   }
 
   function reset() {
@@ -161,8 +163,10 @@
   }
 
   // Aktion bestätigen: Regeln anwenden, Effekte zeigen
-  async function commit(then) {
-    const s = S.state, u = S.unit, p = S.pend;
+  const commit = (then) => perform(S.unit, S.pend, then);
+
+  async function perform(u, p, then) {
+    const s = S.state, wasBusy = S.busy;
     const before = new Map(s.units.map((x) => [x.id, x.hp]));
     const action = { type: 'move', id: u.id, x: p.x, y: p.y, then };
     const pos = new Map(s.units.map((x) => [x.id, { x: x.x, y: x.y }]));
@@ -183,7 +187,7 @@
         if (now) V.flash(id);
       }
       await V.wait(500);
-      S.busy = false;
+      S.busy = wasBusy;
     }
   }
 
@@ -241,6 +245,36 @@
     if (S.busy || S.state.winner !== null) return;
     R.apply(S.state, { type: 'end' });
     reset(); info(''); refresh();
+    maybeAi();
+  }
+
+  // KI-Zug: Plan holen und mit Animation abspielen, Eingaben gesperrt
+  function maybeAi() {
+    const s = S.state, level = s.winner === null && s.players[s.turn].ai;
+    if (!level) return;
+    S.busy = true;
+    info('KI denkt …');
+    setTimeout(async () => {
+      const plan = AW.ai.planTurn(s, level);
+      for (const a of plan) {
+        if (S.state !== s) return;   // neue Partie gestartet
+        if (a.type === 'move') {
+          const u = s.units.find((x) => x.id === a.id);
+          S.unit = u;
+          if (a.x !== u.x || a.y !== u.y) await V.moveUnit(u.id, pathTo(u, a.x, a.y));
+          await perform(u, { x: a.x, y: a.y }, a.then);
+        } else {
+          R.apply(s, a);
+          if (a.type === 'power') info('Kraft aktiviert!');
+          refresh();
+          await V.wait(a.type === 'build' ? 150 : 0);
+        }
+      }
+      if (S.state !== s) return;
+      S.busy = false;
+      reset(); info(''); refresh();
+      maybeAi();
+    }, 30);
   }
 
   function usePower() {
@@ -258,8 +292,11 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !S.busy) back(); });
     $('end').onclick = endTurn;
     $('power').onclick = usePower;
-    $('restart').onclick = () => start(AW.SKIRMISH[0]);
-    start(AW.SKIRMISH[0]);
+    // Vorerst ohne Menü: ?ai=easy|normal|hard|brutal macht Karmin zur KI
+    const level = new URLSearchParams(location.search).get('ai');
+    const opts = () => ({ co: ['mira', 'varek'], ai: [null, AW.DIFFICULTY[level] ? level : null], difficulty: AW.DIFFICULTY[level] ? level : 'normal' });
+    $('restart').onclick = () => start(AW.SKIRMISH[0], opts());
+    start(AW.SKIRMISH[0], opts());
   }
 
   AW.ui = { init, start, get state() { return S.state; } };

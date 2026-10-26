@@ -57,7 +57,8 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Startet vorerst direkt in `AW.SKIRMISH[0]`, Hot-Seat (beide Menschen).
   - Test: Im Browser eine Partie Hot-Seat bis zur HQ-Einnahme spielen. Keine Konsolenfehler. Playwright-Smoke-Test `game/test/smoke.js` (Seite laden, auf eine Einheit und ein Feld klicken, Zug beenden, keine `pageerror`).
 
-- [ ] **T06 KI: Bausteine, Leicht, Mittel**
+- [x] **T06 KI: Bausteine, Leicht, Mittel**
+  - Annahmen: Schwer/Sehr schwer nutzen bis T07/T08 die Mittel-Logik. Selfplay spiegelt die Karten (Azur-Hälfte, gleiche Armee/Geld/CO), da Kampagnenkarten asymmetrisch sind; `m1` (Erstschlag der Panzer entscheidet, ~50 % für jede Stufe) wird angezeigt, aber nicht gewertet. Bedrohung wird mit `THREAT_SCALE` 10 skaliert (siehe AI.md). Bauen: Einnehmer bis 3, sonst teuerste Einheit mit positivem Nutzen. UI: `?ai=<stufe>` macht Karmin zur KI (bis T09-Menü). Ergebnis: `normal easy 10` = 97 %.
   - Lesen: AI.md (Schnittstelle, Bausteine, Leicht, Mittel, Leistung) · Exporte von `rules.js`
   - Neu: `game/js/ai.js` → `AW.ai = { planTurn }` plus interne `scoreAction`, `threatMap`, `distanceMaps`, `chooseBuilds`, `evaluate`.
   - UI: Ist der aktive Spieler eine KI, „KI denkt …“ anzeigen, Plan holen, Aktionen mit Animation abspielen (Eingaben gesperrt).

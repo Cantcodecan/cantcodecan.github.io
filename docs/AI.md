@@ -35,7 +35,7 @@ Alle:     − 3000, wenn das Feld eine eigene leere Fabrik/Flughafen blockiert
 ```
 Distanz = Bewegungskosten-Distanz über `MOVE_COST` (einmal pro Zug je Bewegungsart per Dijkstra von den Zielen aus vorberechnen).
 
-**Bedrohungskarte `threat[Feld]`:** Summe über alle gegnerischen Einheiten des maximalen Basisschadens, den sie im nächsten Zug auf dieses Feld anrichten könnten (Reichweite + Angriffsreichweite). Einmal pro Zug berechnen, nach Tötungen nur die betroffene Einheit abziehen.
+**Bedrohungskarte `threat[Feld]`:** Summe über alle gegnerischen Einheiten des maximalen Basisschadens, den sie im nächsten Zug auf dieses Feld anrichten könnten (Reichweite + Angriffsreichweite). Einmal pro Zug berechnen, nach Tötungen nur die betroffene Einheit abziehen. In der Wartebewertung wird sie mit `THREAT_SCALE = 10` multipliziert (Messung T06: ohne Faktor bleibt die Bedrohung gegenüber der Distanzstrafe wirkungslos).
 
 **Bewertung eines Zustands `evaluate(state, p)`** (für Stufe Schwer und Sehr schwer):
 ```
