@@ -14,7 +14,7 @@
     S.last = [mapDef, opts];
     S.state = R.newGame(mapDef, opts);
     S.hooks = opts; S.ended = false;
-    S.busy = false;
+    S.busy = false; resetEnd();
     $('overlay').classList.remove('show');
     reset();
     refresh();
@@ -156,7 +156,7 @@
     if (S.targets.length) items.push(['Angreifen', startAim]);
     if (canCapture(u, x, y)) items.push(['Einnehmen', () => commit('capture')]);
     items.push(['Warten', () => commit('wait')]);
-    items.push(['Abbrechen', cancel, { ghost: true }]);
+    items.push([moved ? 'Rückgängig' : 'Abbrechen', cancel, { ghost: true }]);
     renderMenu(items);
     refresh();
   }
@@ -198,7 +198,7 @@
         V.floatText(at.x, at.y, '-' + (now ? loss : dispHp(hp0)), id === u.id ? 'counter' : '');
         if (now) V.flash(id);
       }
-      await V.wait(500);
+      await V.wait(S.fast ? 120 : 500);
       S.busy = wasBusy;
     }
   }
@@ -209,7 +209,7 @@
       S.mode = 'menu'; S.aim = null;
       const items = [['Angreifen', startAim]];
       if (canCapture(S.unit, S.pend.x, S.pend.y)) items.push(['Einnehmen', () => commit('capture')]);
-      items.push(['Warten', () => commit('wait')], ['Abbrechen', cancel, { ghost: true }]);
+      items.push(['Warten', () => commit('wait')], [S.unit.x !== S.pend.x || S.unit.y !== S.pend.y ? 'Rückgängig' : 'Abbrechen', cancel, { ghost: true }]);
       renderMenu(items); info(''); refresh();
     } else cancel();
   }
@@ -253,8 +253,19 @@
     if (t) preview(t);
   }
 
+  function resetEnd() { S.confirmEnd = false; clearTimeout(S.confirmT); $('end').textContent = 'Zug beenden'; }
+
   async function endTurn() {
     if (S.busy || S.state.winner !== null) return;
+    const s = S.state;
+    if (!S.confirmEnd && s.units.some((u) => u.owner === s.turn && !u.acted)) {
+      S.confirmEnd = true;
+      $('end').textContent = 'Wirklich beenden?';
+      clearTimeout(S.confirmT);
+      S.confirmT = setTimeout(resetEnd, 3000);
+      return;
+    }
+    resetEnd();
     R.apply(S.state, { type: 'end' });
     reset(); info(''); refresh();
     maybeAi();
@@ -279,7 +290,7 @@
           R.apply(s, a);
           if (a.type === 'power') info('Kraft aktiviert!');
           refresh();
-          await V.wait(a.type === 'build' ? 150 : 0);
+          await V.wait(a.type === 'build' ? (S.fast ? 30 : 150) : 0);
         }
       }
       if (S.state !== s) return;
@@ -302,6 +313,26 @@
     $('board').addEventListener('mouseover', (e) => { const p = tileOf(e); if (p) onHover(...p); });
     $('board').addEventListener('contextmenu', (e) => { e.preventDefault(); if (!S.busy) back(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !S.busy) back(); });
+    try { S.fast = localStorage.getItem('aw.fast') === '1'; } catch (e) {}
+    V.setFast(S.fast);
+    const fb = $('fast');
+    const showFast = () => { fb.textContent = S.fast ? 'Schnell: an' : 'Schnell: aus'; };
+    fb.onclick = () => { S.fast = !S.fast; V.setFast(S.fast); showFast(); try { localStorage.setItem('aw.fast', S.fast ? '1' : '0'); } catch (e) {} };
+    showFast();
+    // langes Tippen = Info
+    let lp = null, suppress = false;
+    $('board').addEventListener('pointerdown', (e) => {
+      const p = tileOf(e);
+      clearTimeout(lp);
+      if (!p || e.pointerType === 'mouse') return;
+      lp = setTimeout(() => {
+        suppress = true;
+        const u = R.unitAt(S.state, p[0], p[1]);
+        if (u) unitInfo(u); else terrainInfo(p[0], p[1]);
+      }, 450);
+    });
+    for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) $('board').addEventListener(ev, () => clearTimeout(lp));
+    $('board').addEventListener('click', (e) => { if (suppress) { suppress = false; e.stopImmediatePropagation(); } }, true);
     $('end').onclick = endTurn;
     $('power').onclick = usePower;
     $('toMenu').onclick = toMenu;

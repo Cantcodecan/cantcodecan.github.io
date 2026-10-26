@@ -2,6 +2,7 @@
 (function (g) {
   const AW = (g.AW = g.AW || {});
   const STEP_MS = 60;
+  let fast = false;
   let root, tilesEl, unitsEl;
 
   const key = (x, y) => x + ',' + y;
@@ -65,7 +66,7 @@
     for (const p of path.slice(1)) {
       el.style.setProperty('--x', p.x);
       el.style.setProperty('--y', p.y);
-      await wait(STEP_MS);
+      await wait(fast ? 15 : STEP_MS);
     }
   }
 
@@ -73,7 +74,7 @@
     const el = unitEl(id);
     if (!el) return;
     el.classList.add('flash');
-    await wait(150);
+    await wait(fast ? 40 : 150);
     el.classList.remove('flash');
   }
 
@@ -87,6 +88,6 @@
     setTimeout(() => el.remove(), 950);
   }
 
-  AW.render = { init, draw, neighborMask, moveUnit, flash, floatText, wait };
+  AW.render = { init, draw, neighborMask, setFast: (f) => { fast = !!f; }, moveUnit, flash, floatText, wait };
   if (typeof module !== 'undefined' && module.exports) module.exports = AW.render;
 })(globalThis);

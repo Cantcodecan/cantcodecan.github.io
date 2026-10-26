@@ -81,3 +81,6 @@ table.dmg { border-collapse: collapse; font-size: 11px; text-align: center; }
 table.dmg th, table.dmg td { padding: 3px 4px; border: 1px solid var(--line); min-width: 28px; }
 table.dmg th { background: var(--panel); text-align: left; white-space: nowrap; }
 table.dmg td.none { color: var(--muted); }
+#boardWrap { touch-action: pan-x pan-y; -webkit-touch-callout: none; }
+#row button { flex: 1 1 auto; }
+#app, #side { min-width: 0; }

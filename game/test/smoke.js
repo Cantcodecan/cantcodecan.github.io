@@ -7,6 +7,7 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   const errors = [];
+  const end = async () => { await page.click('#end'); if (/Wirklich/.test(await page.textContent('#end'))) await page.click('#end'); };
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   await page.goto('file://' + path.resolve(__dirname, '../index.html'));
@@ -27,7 +28,7 @@ const { chromium } = require('playwright');
   await page.waitForSelector('.unit.done');
 
   // Zug beenden
-  await page.click('#end');
+  await end();
   assert.match(await page.textContent('#who'), /Karmin/);
 
   // Rundenspiel bis zur HQ-Einnahme auf Mini-Karte
@@ -38,7 +39,7 @@ const { chromium } = require('playwright');
     await page.click('.tile[data-x="5"][data-y="0"]');          // Einheit wählen
     await page.click('.tile[data-x="5"][data-y="0"]');          // Stehen bleiben
     await page.getByRole('button', { name: 'Einnehmen' }).click();
-    if (i === 0) { await page.click('#end'); await page.click('#end'); }  // Karmin, zurück zu Azur
+    if (i === 0) { await end(); await end(); }  // Karmin, zurück zu Azur
   }
   assert(await page.evaluate(() => AW.ui.state.winner === 0), 'Azur gewinnt durch HQ-Einnahme');
   assert(await page.isVisible('#overlay.show'), 'Sieger-Bildschirm');
@@ -54,8 +55,8 @@ const { chromium } = require('playwright');
   while (await page.isVisible('#screen.show')) await page.click('#next');
   assert.match(await page.textContent('#goal'), /HQ/);
   await page.evaluate(() => { const s = AW.ui.state; s.units = s.units.filter((u) => u.owner === 0); s.day = 2; });
-  await page.click('#end');
-  await page.click('#end', { force: true }).catch(() => {});
+  await end();
+  await end().catch(() => {});
   await page.waitForSelector('#overlay.show');
   assert(await page.evaluate(() => AW.menu.unlocked() === 2), 'M2 freigeschaltet');
   await page.click('#restart');
@@ -66,6 +67,26 @@ const { chromium } = require('playwright');
   await page.getByRole('button', { name: 'Zurück' }).click();
   await page.getByRole('button', { name: 'Regeln' }).click();
   assert(await page.locator('table.dmg td').count() > 50, 'Schadenstabelle');
+
+  // Mobil 360×740 und Desktop: Screenshots, kein horizontales Seitenscrollen
+  await page.getByRole('button', { name: 'Zurück' }).click();
+  await page.getByRole('button', { name: 'Hot-Seat' }).click();
+  await page.getByRole('button', { name: 'Start' }).click();
+  await page.waitForSelector('.unit');
+  const shots = path.resolve(__dirname, 'shots');
+  require('fs').mkdirSync(shots, { recursive: true });
+  for (const [w, h] of [[360, 740], [1280, 800]]) {
+    await page.setViewportSize({ width: w, height: h });
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Seitenscroll bei ' + w);
+    await page.screenshot({ path: path.join(shots, `${w}x${h}.png`) });
+  }
+  // Rückgängig + Bestätigung vor Zugende
+  await page.click('.unit[data-owner="0"] >> nth=0', { force: true });
+  await page.locator('.tile.reach >> nth=-1').click();
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  assert.strictEqual(await page.locator('.unit.done').count(), 0, 'Rückgängig lässt Einheit frei');
+  await page.click('#end');
+  assert.match(await page.textContent('#end'), /Wirklich/, 'Bestätigung');
 
   assert.deepStrictEqual(errors, [], 'Konsolenfehler: ' + errors.join('; '));
   await browser.close();

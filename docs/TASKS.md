@@ -81,7 +81,8 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Hauptmenü (Kampagne / Gefecht / Hot-Seat / Regeln), Kampagnenauswahl mit Freischaltung (`localStorage` in try/catch), Schwierigkeitsauswahl mit Beschreibung (Sehr schwer: „+10 % Einkommen“), Gefecht-Einstellungen (Karte, COs, KI-Stufe, Startgeld), Dialogbox mit Porträt für `intro`/`outro`, Missionsziel-Anzeige (bei survive: „Tag X / N“), Kurzregeln-Seite mit Schadens-Übersicht aus `AW.DAMAGE` (Tabelle mit Farbskala).
   - Test: Kampagne M1 im Browser starten, Dialog durchklicken, gewinnen, M2 ist freigeschaltet. Smoke-Test erweitern.
 
-- [ ] **T10 Feinschliff und Mobil**
+- [x] **T10 Feinschliff und Mobil**
+  - Annahmen: „Rückgängig“ = Menüknopf nach Bewegung (Einheit springt zurück); Zugende-Bestätigung per Zweitklick („Wirklich beenden?“, 3 s); Schnell-Modus in `localStorage`; Screenshots landen in `game/test/shots/` (ignoriert).
   - Lesen: `css/style.css`, `js/render.js`, `js/ui.js`
   - Touch: Tippen = Klick, langes Tippen = Info. Knopf „Rückgängig“ für die letzte Bewegung ohne Aktion. Optionale Kurz-Animationen (Einstellung „schnell“). Bestätigung vor „Zug beenden“, wenn noch Einheiten frei sind. Hell/dunkel-Darstellung des Rahmens (`prefers-color-scheme`). Kein horizontales Seitenscrollen bei 360 px Breite.
   - Test: Playwright-Screenshot bei 360×740 und 1280×800, Smoke-Test grün.
