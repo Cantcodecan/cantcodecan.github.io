@@ -57,3 +57,27 @@ button.ghost { background: var(--line); color: var(--fg); }
 #overlay.show { display: flex; }
 #overlay .box { background: var(--panel); padding: 24px 32px; border-radius: 10px; text-align: center; }
 #overlay h2 { margin: 0 0 12px; }
+
+#goal { font-size: 12px; color: var(--muted); }
+#overlay .list { display: flex; gap: 8px; justify-content: center; }
+#screen { position: fixed; inset: 0; background: var(--bg); display: none; overflow-y: auto; z-index: 20; }
+#screen.show { display: block; }
+#screen .page { max-width: 640px; margin: 0 auto; padding: 24px 16px; }
+#screen h1 { margin: 24px 0 0; font-size: 40px; text-align: center; }
+#screen .sub { color: var(--muted); text-align: center; margin: 4px 0 16px; }
+#screen .list { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+#screen .list button { text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 14px; }
+#screen .list.two button { flex-direction: column; align-items: flex-start; }
+#screen .list button small { font-weight: 400; opacity: .8; }
+#screen .form { display: flex; flex-direction: column; gap: 10px; }
+#screen label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); }
+#screen select { font: inherit; padding: 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
+#screen .dialog { display: flex; gap: 14px; align-items: flex-start; background: var(--panel); padding: 16px; border-radius: 10px; margin-top: 24px; }
+#screen .dialog p { margin: 6px 0 0; line-height: 1.5; }
+#screen .pic { width: 72px; height: 72px; flex: none; border-radius: 6px; background: var(--line); }
+#screen .text p { line-height: 1.5; }
+#screen .scroll { overflow-x: auto; }
+table.dmg { border-collapse: collapse; font-size: 11px; text-align: center; }
+table.dmg th, table.dmg td { padding: 3px 4px; border: 1px solid var(--line); min-width: 28px; }
+table.dmg th { background: var(--panel); text-align: left; white-space: nowrap; }
+table.dmg td.none { color: var(--muted); }

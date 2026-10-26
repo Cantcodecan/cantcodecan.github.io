@@ -10,6 +10,10 @@ const { chromium } = require('playwright');
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   await page.goto('file://' + path.resolve(__dirname, '../index.html'));
+  // Hauptmenü → Gefecht (Hot-Seat)
+  await page.waitForSelector('#screen.show');
+  await page.getByRole('button', { name: 'Hot-Seat' }).click();
+  await page.getByRole('button', { name: 'Start' }).click();
   await page.waitForSelector('.unit');
 
   // Einheit wählen, Feld wählen, Warten
@@ -38,6 +42,30 @@ const { chromium } = require('playwright');
   }
   assert(await page.evaluate(() => AW.ui.state.winner === 0), 'Azur gewinnt durch HQ-Einnahme');
   assert(await page.isVisible('#overlay.show'), 'Sieger-Bildschirm');
+
+  // Kampagne: M1 starten, Dialog durchklicken, gewinnen, M2 freigeschaltet
+  await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
+  await page.click('#toMenu');
+  await page.getByRole('button', { name: 'Kampagne' }).click();
+  assert(await page.getByRole('button', { name: /2\. Der Wald/ }).isDisabled(), 'M2 gesperrt');
+  await page.getByRole('button', { name: /1\. Landung/ }).click();
+  assert.match(await page.textContent('#screen'), /\+10 % Einkommen/, 'Beschreibung Sehr schwer');
+  await page.getByRole('button', { name: /Mittel/ }).click();
+  while (await page.isVisible('#screen.show')) await page.click('#next');
+  assert.match(await page.textContent('#goal'), /HQ/);
+  await page.evaluate(() => { const s = AW.ui.state; s.units = s.units.filter((u) => u.owner === 0); s.day = 2; });
+  await page.click('#end');
+  await page.click('#end', { force: true }).catch(() => {});
+  await page.waitForSelector('#overlay.show');
+  assert(await page.evaluate(() => AW.menu.unlocked() === 2), 'M2 freigeschaltet');
+  await page.click('#restart');
+  while (await page.isVisible('#screen.show') && await page.locator('#next').count()) await page.click('#next');
+  assert(await page.getByRole('button', { name: /2\. Der Wald/ }).isEnabled(), 'M2 offen');
+
+  // Regeln-Seite
+  await page.getByRole('button', { name: 'Zurück' }).click();
+  await page.getByRole('button', { name: 'Regeln' }).click();
+  assert(await page.locator('table.dmg td').count() > 50, 'Schadenstabelle');
 
   assert.deepStrictEqual(errors, [], 'Konsolenfehler: ' + errors.join('; '));
   await browser.close();

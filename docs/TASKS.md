@@ -75,7 +75,8 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Lesen: AI.md (Sehr schwer, Leistung, Abnahme) · `js/ai.js`
   - Test: `node game/test/selfplay.js brutal hard 10` → ≥ 75 %, ≤ 1500 ms/Zug. Wird die Quote nicht erreicht: zuerst `evaluate`-Gewichte, Strahlbreite und Kandidaten pro Schritt anpassen, Werte in AI.md nachtragen.
 
-- [ ] **T09 Menüs, Kampagne, Story**
+- [x] **T09 Menüs, Kampagne, Story**
+  - Annahmen: Menü/Dialoge/Regeln in neuer `js/menu.js`; Hot-Seat ist die Gefecht-Maske ohne KI; Gefecht-Karten nutzen Ziel `rout`; Startgeld-Auswahl 0–10000.
   - Lesen: DESIGN.md §1, §7, §9 · `js/missions.js` (nur Struktur) · `js/ui.js`
   - Hauptmenü (Kampagne / Gefecht / Hot-Seat / Regeln), Kampagnenauswahl mit Freischaltung (`localStorage` in try/catch), Schwierigkeitsauswahl mit Beschreibung (Sehr schwer: „+10 % Einkommen“), Gefecht-Einstellungen (Karte, COs, KI-Stufe, Startgeld), Dialogbox mit Porträt für `intro`/`outro`, Missionsziel-Anzeige (bei survive: „Tag X / N“), Kurzregeln-Seite mit Schadens-Übersicht aus `AW.DAMAGE` (Tabelle mit Farbskala).
   - Test: Kampagne M1 im Browser starten, Dialog durchklicken, gewinnen, M2 ist freigeschaltet. Smoke-Test erweitern.

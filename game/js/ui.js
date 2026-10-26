@@ -10,7 +10,10 @@
   const S = { state: null, mode: 'idle', unit: null, reach: new Map(), atk: new Set(), pend: null, targets: [], aim: null, busy: false };
 
   function start(mapDef, opts) {
-    S.state = R.newGame(mapDef, opts || { co: ['mira', 'varek'] });
+    opts = opts || { co: mapDef.co || ['mira', 'varek'] };
+    S.last = [mapDef, opts];
+    S.state = R.newGame(mapDef, opts);
+    S.hooks = opts; S.ended = false;
     S.busy = false;
     $('overlay').classList.remove('show');
     reset();
@@ -71,14 +74,23 @@
     $('power').textContent = p.powerActive ? `${co.power.name} aktiv` : co.power.name;
     $('power').disabled = !ready || s.winner !== null;
     $('end').disabled = s.winner !== null;
+    const o = s.objective || {};
+    $('goal').textContent = o.type === 'survive' ? `Halte durch: Tag ${Math.min(s.day, o.days)} / ${o.days}` : 'Ziel: Gegner-HQ einnehmen oder alle besiegen';
     if (s.winner !== null) showWinner();
   }
 
   function showWinner() {
     const w = S.state.winner;
+    const h = S.hooks || {}, lab = h.label || {};
     $('overlayText').textContent = w === 'draw' ? 'Unentschieden' : `${AW.FACTIONS[w].name} siegt!`;
+    $('restart').textContent = h.next ? (w === 0 ? lab.win : lab.lose) || 'Weiter' : 'Neue Partie';
+    $('restart').onclick = () => (h.next ? (hide(), h.next(w)) : start(...S.last));
     $('overlay').classList.add('show');
+    if (!S.ended) { S.ended = true; if (h.onWin) h.onWin(w); }
   }
+
+  function hide() { $('overlay').classList.remove('show'); }
+  function toMenu() { if (!S.busy || (S.state && S.state.winner !== null)) { S.state = null; hide(); AW.menu.main(); } }
 
   function info(html) { $('info').innerHTML = html; }
 
@@ -292,11 +304,9 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !S.busy) back(); });
     $('end').onclick = endTurn;
     $('power').onclick = usePower;
-    // Vorerst ohne Menü: ?ai=easy|normal|hard|brutal macht Karmin zur KI
-    const level = new URLSearchParams(location.search).get('ai');
-    const opts = () => ({ co: ['mira', 'varek'], ai: [null, AW.DIFFICULTY[level] ? level : null], difficulty: AW.DIFFICULTY[level] ? level : 'normal' });
-    $('restart').onclick = () => start(AW.SKIRMISH[0], opts());
-    start(AW.SKIRMISH[0], opts());
+    $('toMenu').onclick = toMenu;
+    $('menuBtn').onclick = toMenu;
+    AW.menu.main();
   }
 
   AW.ui = { init, start, get state() { return S.state; } };
