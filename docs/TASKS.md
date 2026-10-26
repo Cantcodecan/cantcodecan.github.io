@@ -131,7 +131,7 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - `selfplay.js`: optionales 4. Argument Startgeld (Standard wie bisher). Mit 10000 prüfen, ob die teuren Typen gebaut werden. Erlaubt: `chooseBuilds` so ändern, dass bei reichlich Geld nicht nur nach Nutzen/Kosten gewählt wird (z. B. Sparen für eine teure Einheit, wenn ihr Nutzen deutlich höher ist), sowie `cost` von rocket/fighter/bomber/heavy um höchstens 20 % senken. Jede Änderung als Zeile in DESIGN.md §8.
   - Test: alle Abnahmen aus AI.md grün (nicht verschlechtern; `brutal hard` ≥ 75 %); `selfplay.js normal normal 10 10000` baut jeden der vier Typen mindestens einmal. Wird das nicht erreicht: Stand dokumentieren, Abnahmen grün halten.
 
-- [ ] **T18 Veröffentlichung**
+- [x] **T18 Veröffentlichung**
   - Lesen: `README.md` · im Repo-Root `index.html` **nur** die Zeilen um `</form>` (Datei ist groß, verschlüsselte Staticrypt-Seite; nie komplett lesen oder neu schreiben)
   - Root-`index.html`: direkt nach dem schließenden `</div>` von `staticrypt-form` (innerhalb `staticrypt-page`) eine Zeile `<p style="text-align:center"><a href="game/">Miniwars spielen</a></p>` einfügen. Sonst nichts ändern.
   - `README.md`: Abschnitt „Miniwars“ mit 2–3 Zeilen (rundenbasiertes Strategiespiel im Browser, Link https://cantcodecan.github.io/game/, Doku in `docs/`).
