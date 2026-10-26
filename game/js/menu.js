@@ -2,7 +2,7 @@
 (function (g) {
   const AW = (g.AW = g.AW || {});
   const $ = (id) => document.getElementById(id);
-  const SAVE = 'miniwars.campaign', OLD_SAVE = 'eisenfront.campaign';
+  const SAVE = 'oldschoolwars.campaign', OLD_SAVE = 'eisenfront.campaign';
   const LEVEL_DESC = {
     easy: 'Zögerlich, baut wenig. Guter Einstieg.',
     normal: 'Solide Taktik, nimmt Gebäude ein.',
@@ -48,7 +48,7 @@
       { label: 'Hot-Seat', fn: () => skirmish(true) },
       { label: 'Regeln', fn: rules },
     ];
-    show(`<h1>Miniwars</h1><p class="sub">Die Valdur-Krise</p><div class="list">${buttons(items)}</div>`, (el) => bind(el, items));
+    show(`<h1>Old School Wars</h1><p class="sub">Die Valdur-Krise</p><div class="list">${buttons(items)}</div>`, (el) => bind(el, items));
   }
 
   function campaign() {

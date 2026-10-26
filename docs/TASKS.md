@@ -137,6 +137,8 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - `README.md`: Abschnitt „Miniwars“ mit 2–3 Zeilen (rundenbasiertes Strategiespiel im Browser, Link https://cantcodecan.github.io/game/, Doku in `docs/`).
   - Test: `git diff --stat index.html` zeigt genau 1 eingefügte Zeile; Playwright: Root-Seite laden, Link „Miniwars spielen“ führt zu `game/index.html` und zeigt das Hauptmenü.
 
+- [x] **T19 Umbenennung zu „Old School Wars“** – Spielname, Startseiten-Link, README, DESIGN.md; Speicherschlüssel `oldschoolwars.campaign` (liest `eisenfront.campaign` weiter). „Miniwars“ war nie veröffentlicht.
+
 ## Später (nicht jetzt umsetzen)
 
 Nebel des Krieges, Seeeinheiten (Transport, Kanonenboot), Wetter, Karteneditor, Online-Mehrspieler, generierte Bild-Assets statt SVG.
