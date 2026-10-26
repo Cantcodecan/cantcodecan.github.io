@@ -36,7 +36,8 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Test: `node game/test/rules.test.js`
   - Annahmen: `winner` = 0 | 1 | `'draw'`; `isOver` prüft und setzt es (auch von `apply` aufgerufen); Rout ohne Einheiten: Gegner ab Tag 2 oder sofort ohne baubare Einheit, aktiver Spieler nur ohne baubare Einheit.
 
-- [ ] **T03 Piktogramme: Gelände und Gebäude**
+- [x] **T03 Piktogramme: Gelände und Gebäude**
+  - Annahme: Brücken (Straße über Fluss) nicht gesondert gezeichnet; Platzhalter-`unit`/`portrait` bis T04.
   - Lesen: ART.md komplett (ohne Einheiten und Porträts)
   - Neu: `game/js/icons.js` → `AW.icons = { terrain, unit, portrait }`. `unit` und `portrait` vorerst als einfache Platzhalter (Kreis in Teamfarbe mit Kürzel bzw. Initialen).
   - Neu: `game/icons-preview.html`: zeigt alle Geländearten × Besitzer und Straßen/Flüsse mit allen 16 Masken in einem Raster (48 px und 28 px).
