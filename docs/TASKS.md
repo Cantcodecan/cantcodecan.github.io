@@ -48,7 +48,8 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - In `icons.js`: `unit` und `portrait` voll umsetzen. Vorschau-Seite um alle Einheiten × Teams auf 3 Geländearten und um die Porträts ergänzen.
   - Test: wie T03 sinngemäß für alle `AW.UNITS` × [0,1] und alle `AW.COMMANDERS`. Silhouette-Test aus ART.md per Augenschein in der Vorschau.
 
-- [ ] **T05 Spielfeld und Bedienung (Hot-Seat spielbar)** 🧠
+- [x] **T05 Spielfeld und Bedienung (Hot-Seat spielbar)** 🧠
+  - Annahme: `ai.js` wird erst in T06 in `index.html` eingebunden; Bewegung wird erst mit der Aktion an `rules.apply` übergeben (Abbrechen = Einheit springt zurück).
   - Lesen: DESIGN.md §2–5, §10 · ART.md (HP-Anzeige, Fertig-Filter) · Schnittstellen von `rules.js` (nur Exporte überfliegen)
   - Neu: `game/css/style.css`, `game/js/render.js`, `game/js/ui.js`. `game/index.html` ersetzen (lädt data, missions, rules, ai (falls vorhanden), icons, render, ui).
   - Muss können: Karte responsiv (Kachel `clamp(28px, 6vw, 56px)`, Karte horizontal scrollbar statt Seite), Einheit wählen → Reichweite blau, Angriffsfelder rot, Pfadvorschau, Aktionsmenü (Angreifen/Einnehmen/Warten/Abbrechen), Schadensvorschau beim Zielen, Rechtsklick/Escape bricht ab. Seitenleiste oder Kopfzeile: Tag, aktiver Spieler, Geld, CO, Ladeleiste mit Kraft-Knopf. Geländeinfo bei Tippen auf ein leeres Feld (Name, Sterne). Einheiteninfo (Name, HP, Bewegung, Reichweite, `desc`). Baumenü bei Klick auf eigene freie Fabrik bzw. Flughafen. Gewinner-Bildschirm.

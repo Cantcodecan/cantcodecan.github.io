@@ -3,185 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Prototyp Strategiespiel</title>
-<style>
-  :root { --bg:#1b1f24; --fg:#e8ecf1; --panel:#262c33; --accent:#f2c14e; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, sans-serif; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
-  header { width:100%; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; background:var(--panel); }
-  header h1 { font-size:18px; margin:0; }
-  #turn { font-weight:600; }
-  button { background:var(--accent); color:#222; border:0; border-radius:6px; padding:8px 14px; font-weight:600; cursor:pointer; }
-  button:disabled { opacity:.4; cursor:default; }
-  #board { margin:12px; display:grid; gap:2px; max-width:100%; }
-  .tile { width:clamp(28px, 7vw, 56px); aspect-ratio:1; border-radius:4px; position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; }
-  .tile svg { width:80%; height:80%; }
-  .tile.reach::after { content:""; position:absolute; inset:0; background:rgba(120,200,255,.35); border-radius:4px; pointer-events:none; }
-  .tile.sel { outline:3px solid var(--accent); outline-offset:-3px; }
-  .unit { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
-  .unit svg { width:82%; height:82%; filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
-  .unit.done svg { opacity:.45; }
-  #info { margin:4px 16px 16px; min-height:24px; font-size:14px; opacity:.85; text-align:center; }
-</style>
+<title>Strategiespiel</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<header>
-  <h1>Prototyp</h1>
-  <span id="turn"></span>
-  <button id="end">Zug beenden</button>
-</header>
-<div id="board"></div>
-<div id="info">Einheit anklicken, dann Feld zum Bewegen wählen.</div>
-
-<script>
-// ---------- Piktogramme (SVG) ----------
-const ICONS = {
-  plain: `<rect width="48" height="48" fill="#8fc66b"/><path d="M6 40 L14 30 M34 12 L42 4" stroke="#6ea84e" stroke-width="2"/>`,
-  forest: `<rect width="48" height="48" fill="#6ea84e"/><path d="M14 34 L24 12 L34 34Z" fill="#3f7a31"/><path d="M28 38 L36 20 L44 38Z" fill="#2f6325"/>`,
-  mountain: `<rect width="48" height="48" fill="#a9b0b8"/><path d="M4 42 L20 14 L30 30 L36 22 L46 42Z" fill="#7a828c"/><path d="M20 14 L24 22 L17 22Z" fill="#eef2f6"/>`,
-  sea: `<rect width="48" height="48" fill="#4a90c9"/><path d="M6 18 q6-5 12 0 t12 0 t12 0 M6 32 q6-5 12 0 t12 0 t12 0" fill="none" stroke="#9cd0f0" stroke-width="2.5" stroke-linecap="round"/>`,
-  city: `<rect width="48" height="48" fill="#8fc66b"/><rect x="10" y="20" width="12" height="20" fill="#d9d4c7"/><rect x="24" y="12" width="14" height="28" fill="#c9c2b2"/><g fill="#5d6b78"><rect x="13" y="24" width="3" height="3"/><rect x="18" y="24" width="3" height="3"/><rect x="27" y="17" width="3" height="3"/><rect x="32" y="17" width="3" height="3"/><rect x="27" y="25" width="3" height="3"/><rect x="32" y="25" width="3" height="3"/></g>`,
-};
-
-// Einheiten: Symbol + Farbe je Besitzer
-const UNIT_TYPES = {
-  inf:  { name:"Infanterie", move:3, range:1, hp:10,
-          svg:(c)=>`<circle cx="24" cy="24" r="18" fill="${c}" stroke="#222" stroke-width="2"/><circle cx="24" cy="18" r="4" fill="#fff"/><path d="M16 34 Q24 22 32 34" fill="#fff"/>` },
-  tank: { name:"Panzer", move:5, range:1, hp:10,
-          svg:(c)=>`<rect x="8" y="16" width="32" height="18" rx="3" fill="${c}" stroke="#222" stroke-width="2"/><rect x="18" y="8" width="16" height="10" rx="2" fill="#fff" stroke="#222" stroke-width="2"/><rect x="24" y="12" width="14" height="3" fill="#222"/>` },
-  art:  { name:"Artillerie", move:2, range:2, hp:10,
-          svg:(c)=>`<circle cx="24" cy="30" r="10" fill="${c}" stroke="#222" stroke-width="2"/><line x1="24" y1="30" x2="38" y2="12" stroke="#222" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="30" r="3" fill="#fff"/>` },
-};
-
-// ---------- Karte ----------
-const W = 10, H = 8;
-const TERRAIN_COST = { plain:1, forest:2, mountain:3, city:1, sea:Infinity };
-const MAP = [
-  "pppppfffmm",
-  "ppcpppffmm",
-  "ppppppppmm",
-  "ssspppppps",
-  "ssspppppps",
-  "pppppfpppp",
-  "ppfffpcppp",
-  "ppppppppcp",
-];
-const TMAP = { p:"plain", f:"forest", m:"mountain", s:"sea", c:"city" };
-
-const PLAYERS = [
-  { name:"Blau",  color:"#3b7dd8" },
-  { name:"Rot",   color:"#d8473b" },
-];
-
-let units = [
-  { id:1, type:"inf",  owner:0, x:1, y:1 },
-  { id:2, type:"tank", owner:0, x:2, y:3 },
-  { id:3, type:"art",  owner:0, x:0, y:2 },
-  { id:4, type:"inf",  owner:1, x:8, y:6 },
-  { id:5, type:"tank", owner:1, x:7, y:5 },
-  { id:6, type:"art",  owner:1, x:9, y:4 },
-];
-let turn = 0, selected = null, reach = new Map(), movedIds = new Set();
-
-// ---------- Logik ----------
-const terrainAt = (x,y) => TMAP[MAP[y][x]];
-const unitAt = (x,y) => units.find(u => u.x===x && u.y===y);
-
-function computeReach(u) {
-  const best = new Map([[`${u.x},${u.y}`, 0]]);
-  const queue = [[u.x,u.y,0]];
-  while (queue.length) {
-    const [x,y,c] = queue.shift();
-    for (const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
-      const nx=x+dx, ny=y+dy;
-      if (nx<0||ny<0||nx>=W||ny>=H) continue;
-      const other = unitAt(nx,ny);
-      if (other && other.owner !== u.owner) continue;
-      const nc = c + TERRAIN_COST[terrainAt(nx,ny)];
-      if (nc > UNIT_TYPES[u.type].move) continue;
-      const key = `${nx},${ny}`;
-      if (best.has(key) && best.get(key) <= nc) continue;
-      best.set(key, nc);
-      queue.push([nx,ny,nc]);
-    }
-  }
-  return new Set([...best.keys()].filter(k => !unitAt(...k.split(",").map(Number)) || k===`${u.x},${u.y}`));
-}
-
-function attackable(u) {
-  const r = UNIT_TYPES[u.type].range;
-  return units.filter(e => e.owner!==u.owner && Math.abs(e.x-u.x)+Math.abs(e.y-u.y) <= r);
-}
-
-// ---------- Darstellung ----------
-const boardEl = document.getElementById("board");
-boardEl.style.gridTemplateColumns = `repeat(${W}, auto)`;
-
-function render() {
-  boardEl.innerHTML = "";
-  for (let y=0; y<H; y++) for (let x=0; x<W; x++) {
-    const t = document.createElement("div");
-    t.className = "tile";
-    if (reach.has(`${x},${y}`)) t.classList.add("reach");
-    if (selected && selected.x===x && selected.y===y) t.classList.add("sel");
-    t.innerHTML = `<svg viewBox="0 0 48 48">${ICONS[terrainAt(x,y)]}</svg>`;
-    const u = unitAt(x,y);
-    if (u) {
-      const el = document.createElement("div");
-      el.className = "unit" + (movedIds.has(u.id) ? " done" : "");
-      el.innerHTML = `<svg viewBox="0 0 48 48">${UNIT_TYPES[u.type].svg(PLAYERS[u.owner].color)}</svg>`;
-      t.appendChild(el);
-    }
-    t.onclick = () => onTile(x,y);
-    boardEl.appendChild(t);
-  }
-  document.getElementById("turn").textContent = `Am Zug: ${PLAYERS[turn].name}`;
-  document.getElementById("end").disabled = false;
-}
-
-function onTile(x,y) {
-  const u = unitAt(x,y);
-  if (selected && reach.has(`${x},${y}`)) {
-    selected.x = x; selected.y = y;
-    movedIds.add(selected.id);
-    const targets = attackable(selected);
-    selected = null; reach = new Map();
-    info(targets.length ? "Angriff möglich: Gegner anklicken." : "Bewegt.");
-    render();
-    return;
-  }
-  if (selected && u && u.owner!==turn) {
-    const r = UNIT_TYPES[selected.type].range;
-    if (Math.abs(u.x-selected.x)+Math.abs(u.y-selected.y) <= r) {
-      units = units.filter(e => e!==u);
-      info(`${UNIT_TYPES[selected.type].name} greift ${UNIT_TYPES[u.type].name} an.`);
-      selected = null; reach = new Map();
-      render();
-      return;
-    }
-  }
-  if (u && u.owner===turn && !movedIds.has(u.id)) {
-    selected = u;
-    reach = computeReach(u);
-    info(`${UNIT_TYPES[u.type].name} gewählt.`);
-  } else {
-    selected = null; reach = new Map();
-    info("");
-  }
-  render();
-}
-
-function info(txt) { document.getElementById("info").textContent = txt; }
-
-document.getElementById("end").onclick = () => {
-  turn = 1 - turn;
-  movedIds.clear();
-  selected = null; reach = new Map();
-  info(`${PLAYERS[turn].name} ist am Zug.`);
-  render();
-};
-
-render();
-</script>
+<div id="app">
+  <div id="boardWrap"><div id="board"></div></div>
+  <aside id="side">
+    <div id="hud">
+      <div id="portrait"></div>
+      <div class="meta"><div id="who"></div><div id="co"></div><div id="charge"><i></i></div></div>
+    </div>
+    <div id="row"><button id="power">Kraft</button><button id="end" class="ghost">Zug beenden</button></div>
+    <div id="info"></div>
+    <div id="menu"></div>
+  </aside>
+</div>
+<div id="overlay"><div class="box"><h2 id="overlayText"></h2><button id="restart">Neue Partie</button></div></div>
+<script src="js/data.js"></script>
+<script src="js/missions.js"></script>
+<script src="js/rules.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
 </body>
 </html>
