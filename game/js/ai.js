@@ -1,4 +1,4 @@
-// KI-Gegner (Leicht, Mittel; Schwer/Sehr schwer folgen). Kein DOM, nutzt nur AW.rules. Regeln: docs/AI.md
+// KI-Gegner (Leicht, Mittel, Schwer; Sehr schwer folgt). Kein DOM, nutzt nur AW.rules. Regeln: docs/AI.md
 (function (g) {
   const AW = (g.AW = g.AW || {});
   const R = AW.rules;
@@ -11,12 +11,13 @@
   // Bedrohung ist in % Basisschaden summiert; der Faktor bringt sie auf die Größenordnung der Distanzstrafe (siehe AI.md)
   const THREAT_SCALE = 10;
 
-  // Parameter je Stufe; Schwer und Sehr schwer nutzen vorerst die Werte von Mittel
+  // Parameter je Stufe; Sehr schwer nutzt vorerst die Werte von Schwer
   const LEVELS = {
     easy:   { counterWeight: 0, threatWeight: 0, random: true },
     normal: { counterWeight: 1, threatWeight: 0.5 },
+    hard:   { counterWeight: 1.2, threatWeight: 1, global: true },
   };
-  LEVELS.hard = LEVELS.brutal = LEVELS.normal;
+  LEVELS.brutal = LEVELS.hard;
 
   // Bewegungskosten-Distanz von allen Feldern zu den Zielfeldern (ohne Einheiten)
   function distanceMap(s, moveType, targets) {
@@ -108,13 +109,17 @@
       const stars = def.domain === 'air' ? 0 : AW.TERRAIN[t.terrain].def;
       const exposure = ctx.params.threatWeight * THREAT_SCALE * ctx.threat[r.y * s.w + r.x] * value(u) / 10000;
 
+      const retreat = ctx.params.global && dispHp(u.hp) <= 3 && ctx.threat[u.y * s.w + u.x] > 0 && isProp(t) && t.owner === mine ? 2000 : 0;
+      const guard = ctx.hqGuard && ctx.hq && r.x === ctx.hq.x && r.y === ctx.hq.y ? 5000 : 0;
+
       for (const tg of R.attackTargets(s, u, r.x, r.y, moved)) {
         const pv = R.previewAttack(s, u.id, r.x, r.y, tg.id);
         const dealt = Math.min(pv.dmg, tg.hp) / 100 * AW.UNITS[tg.type].cost * (isCapturing(s, tg) ? 1.5 : 1);
         const kill = pv.dmg >= tg.hp ? 0.5 * value(tg) : 0;
         const taken = pv.counter / 100 * def.cost;
+        const focus = ctx.hqThreat && ctx.hqThreat.has(tg.id) ? 3 : 1;
         out.push({
-          score: dealt + kill - taken * ctx.params.counterWeight + stars * 10 - exposure - block,
+          score: (dealt + kill) * focus - taken * ctx.params.counterWeight + stars * 10 - exposure - block,
           action: { type: 'move', id: u.id, x: r.x, y: r.y, then: { attack: tg.id } },
         });
       }
@@ -127,7 +132,7 @@
         });
       }
 
-      const score = -120 * nearestDist(s, u, r.x, r.y, ctx) + 40 * stars * dispHp(u.hp) / 10 - exposure - block;
+      const score = -120 * nearestDist(s, u, r.x, r.y, ctx) + 40 * stars * dispHp(u.hp) / 10 - exposure - block + retreat + guard;
       out.push({ score, action: { type: 'move', id: u.id, x: r.x, y: r.y, then: 'wait' } });
     }
     return out;
@@ -202,10 +207,78 @@
     return actions;
   }
 
+  // Gegnerische Einnehmer, die das eigene HQ in höchstens 2 Zügen erreichen
+  function hqDanger(s, p) {
+    const i = s.tiles.findIndex((t) => t.terrain === 'hq' && t.owner === p);
+    if (i < 0) return { hq: null, threat: new Set() };
+    const hq = { x: i % s.w, y: Math.floor(i / s.w) }, ids = new Set(), maps = {};
+    for (const e of s.units) {
+      const def = AW.UNITS[e.type];
+      if (e.owner === p || !def.capture) continue;
+      const m = maps[def.moveType] || (maps[def.moveType] = distanceMap(s, def.moveType, [[hq.x, hq.y]]));
+      if (m[e.y * s.w + e.x] <= 2 * def.move) ids.add(e.id);
+    }
+    return { hq, threat: ids };
+  }
+
+  // Zustandsbewertung aus Sicht von Spieler p (AI.md)
+  function evaluate(s, p) {
+    if (s.winner === p) return 1e6;
+    if (s.winner !== null) return s.winner === 'draw' ? 0 : -1e6;
+    const cp = AW.ECONOMY.capturePoints;
+    let v = 0;
+    for (const u of s.units) v += (u.owner === p ? 1 : -1) * value(u);
+    v += 1200 * (R.propertiesOf(s, p).length - R.propertiesOf(s, 1 - p).length);
+    const threat = threatMap(s, p);
+    for (const u of s.units) {
+      const t = R.tileAt(s, u.x, u.y), sign = u.owner === p ? 1 : -1;
+      if (AW.UNITS[u.type].capture && isProp(t) && t.owner !== u.owner) {
+        v += sign * 300 * (cp - t.cp);
+        if (t.terrain === 'hq' && t.cp <= dispHp(u.hp)) v += sign * 40000;
+      }
+      if (sign > 0) v -= 0.3 * threat[u.y * s.w + u.x] * value(u) / 10000;
+    }
+    return v + 0.5 * (s.players[p].funds - s.players[1 - p].funds);
+  }
+
+  // Schwer: globale Gier. Immer die global beste Aktion aller noch freien Einheiten ausführen.
+  function planGreedy(state, params, usePower) {
+    const s = R.clone(state), p = s.turn, actions = [];
+    const run = (a) => { R.apply(s, a); actions.push(a); };
+    if (usePower) run({ type: 'power' });
+    const danger = hqDanger(s, p);
+    const ctx = { p, params, maps: distanceMaps(s, p), threat: threatMap(s, p), hq: danger.hq, hqThreat: danger.threat, hqGuard: danger.threat.size > 0 };
+    for (;;) {
+      if (s.winner !== null) break;
+      let best = null;
+      for (const u of s.units) {
+        if (u.owner !== p || u.acted) continue;
+        for (const c of scoreActions(s, u, ctx)) if (!best || c.score > best.score) best = c;
+      }
+      if (!best) break;
+      const foes = s.units.length;
+      run(best.action);
+      if (s.units.length < foes) ctx.threat = threatMap(s, p);
+    }
+    if (s.winner === null) actions.push(...chooseBuilds(s, ctx));
+    return { s, actions, value: evaluate(s, p) };
+  }
+
+  function planHard(state, params) {
+    let best = planGreedy(state, params, false);
+    if (powerReady(state)) {
+      const alt = planGreedy(state, params, true);
+      if (alt.value > best.value) best = alt;
+    }
+    if (best.s.winner === null) best.actions.push({ type: 'end' });
+    return best.actions;
+  }
+
   function planTurn(state, level, opts = {}) {
     const rng = opts.rng || Math.random;
     const params = LEVELS[level];
     if (!params) throw new Error('Unbekannte KI-Stufe: ' + level);
+    if (params.global) return planHard(state, params);
     const s = R.clone(state), p = s.turn, actions = [];
     const run = (a) => { R.apply(s, a); actions.push(a); };
 
@@ -230,6 +303,6 @@
     return actions;
   }
 
-  AW.ai = { planTurn, scoreAction: scoreActions, threatMap, distanceMaps, chooseBuilds };
+  AW.ai = { planTurn, scoreAction: scoreActions, threatMap, distanceMaps, chooseBuilds, evaluate };
   if (typeof module !== 'undefined' && module.exports) module.exports = AW.ai;
 })(globalThis);

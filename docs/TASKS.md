@@ -65,7 +65,8 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Neu: `game/test/selfplay.js` (Argumente: `levelA levelB games`). Spielt auf allen Karten, Seiten wechseln, gibt Siegquote und ms/Zug aus.
   - Test: `node game/test/selfplay.js normal easy 10` → Mittel ≥ 90 %.
 
-- [ ] **T07 KI: Schwer** 🧠
+- [x] **T07 KI: Schwer** 🧠
+  - Annahmen: Schwer-Plan wird je mit und ohne Kraft per `evaluate` verglichen (vor „Bauen“-Ende, vor `end`); Bedrohungskarte wird nach Tötungen neu berechnet; Rückzug-Bonus nur auf eigenen Gebäuden bei bedrohtem Startfeld. Ergebnis: `hard normal 10` = 92 %, 3 ms/Zug.
   - Lesen: AI.md (Schwer) · `js/ai.js`
   - Test: `node game/test/selfplay.js hard normal 10` → ≥ 80 %, < 500 ms/Zug.
 
