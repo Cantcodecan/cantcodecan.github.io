@@ -37,14 +37,18 @@ function symmetric(m) {
 const UNRATED = new Set(['m1']);
 const maps = [...AW.MISSIONS, ...AW.SKIRMISH].map(symmetric);
 
-function play(mapDef, aSide) {
+// Fester Zufall je Partie (mulberry32), damit die Abnahme reproduzierbar ist
+const seeded = (a) => () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+
+function play(mapDef, aSide, seed) {
+  const rng = seeded(seed);
   const levels = [null, null];
   levels[aSide] = levelA; levels[1 - aSide] = levelB;
   const s = R.newGame(mapDef, { co: mapDef.co, ai: levels, difficulty: 'normal' });
   let ms = 0, turns = 0;
   while (s.winner === null) {
     const t0 = Date.now();
-    const plan = AW.ai.planTurn(s, levels[s.turn]);
+    const plan = AW.ai.planTurn(s, levels[s.turn], { rng });
     ms += Date.now() - t0; turns++;
     for (const a of plan) { if (a.type === 'build') builds[a.unit] = (builds[a.unit] || 0) + 1; R.apply(s, a); if (s.winner !== null) break; }
     if (turns > 400) throw new Error('Partie endet nicht: ' + mapDef.id);
@@ -58,7 +62,7 @@ for (const m of maps) {
   let w = 0;
   const side = [0, 0];
   for (let i = 0; i < N; i++) {
-    const aSide = i % 2, r = play(m, aSide);
+    const aSide = i % 2, r = play(m, aSide, maps.indexOf(m) * 1000 + i + 1);
     total++; ms += r.ms; turns += r.turns;
     if (r.winner === 0 || r.winner === 1) side[r.winner]++;
     if (r.winner === aSide) w++; else if (r.winner === 'draw') draws++;
