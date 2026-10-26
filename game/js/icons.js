@@ -196,12 +196,15 @@
             `<path d="M12 26l14-3 8 3z" fill="${t.light}"/><path d="M14 31L24 41h6L28 33z" fill="${t.dark}"/><path d="M30 26q5-5 11-1l-3 4z" fill="${GLASS}"/></g>`;
           break;
         case 'bomber':
-          sh = `<ellipse cx="24" cy="44" rx="16" ry="2.4" fill="#000" opacity=".25"/>`;
-          b = `<g ${S}><path d="M4 21L1 10h6l5 11z" fill="${t.dark}"/><path d="M12 28h22l8 9H4z" fill="${t.light}"/><path d="M12 28l-4 9M34 28l4 9" stroke-width="1" fill="none"/>` +
-            `<rect x="9" y="33" width="14" height="6" rx="3" fill="${MET}"/><rect x="22" y="32.5" width="3" height="7" rx="1" fill="${t.dark}"/>` +
-            `<rect x="25" y="37" width="14" height="6" rx="3" fill="${MET}"/><rect x="38" y="36.5" width="3" height="7" rx="1" fill="${t.dark}"/>` +
-            `<rect x="3" y="19" width="40" height="12" rx="6" fill="${t.color}"/><path d="M35 20q6 0 7 5l-7 1z" fill="${GLASS}"/>` +
-            `<rect x="14" y="26" width="15" height="3.5" fill="#2b3340" stroke-width="1.2"/><path d="M21.5 26v3.5" stroke-width="1.2"/></g>`;
+          sh = `<ellipse cx="24" cy="44" rx="12" ry="2.2" fill="#000" opacity=".25"/>`;
+          b = `<g ${S}><path d="M5 22L2 10h7l5 12z" fill="${t.dark}"/><path d="M4 25l-3-3h9l3 3z" fill="${t.dark}"/>` +
+            `<rect x="22" y="29" width="10" height="4" rx="1" fill="#2b3340" stroke-width="1.5"/>` +
+            `<rect x="14" y="31" width="9" height="5" rx="2.5" fill="${MET}"/><rect x="13" y="31.5" width="2.5" height="4" rx="1" fill="#ece6d6" stroke-width="1"/>` +
+            `<rect x="25" y="31" width="9" height="5" rx="2.5" fill="${MET}"/><rect x="24" y="31.5" width="2.5" height="4" rx="1" fill="#ece6d6" stroke-width="1"/>` +
+            `<path d="M4 25q0-6 6-6h28q6 0 7 6 0 5-7 5H10q-6 0-6-5z" fill="${t.color}"/>` +
+            `<path d="M6 26.5h34q3 0 3.5-1.5 0 4-5.5 4.5H10q-4 0-4-3z" fill="${t.dark}" stroke="none"/>` +
+            `<path d="M36 20q6 0 7 4.5l-8 .5z" fill="${GLASS}"/>` +
+            `<rect x="14" y="24" width="22" height="4.5" rx="1" fill="${t.dark}"/></g>`;
           break;
         default:
           b = `<circle cx="24" cy="26" r="12" fill="${t.color}" ${S}/>`;
