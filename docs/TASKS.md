@@ -112,7 +112,7 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Kachelgröße so wählen, dass die Karte in die Breite passt, aber nie kleiner als 22 px (`min(56px, max(22px, (100vw - Ränder) / w))`, als CSS-Variable aus `render.js` gesetzt). Erst darunter horizontal scrollen. Info-Panel ohne feste Mindesthöhe.
   - Test: `node game/test/smoke.js`; Playwright 360×740 auf „Zwei Ufer“: `#boardWrap.scrollWidth <= #boardWrap.clientWidth`.
 
-- [ ] **T15 Piktogramme: Infanterie und Grenadier**
+- [x] **T15 Piktogramme: Infanterie und Grenadier**
   - Befund: Grenadier hat keinen Kopf/kein Gesicht, wirkt wie ein Klumpen; Infanterie ohne sichtbare Haut, Gesichter fehlen.
   - Lesen: ART.md (Stil, Einheiten) · in `js/icons.js` nur die beiden Einheitenfunktionen
   - Infanterie: Gesicht in Hautfarbe unter dem Helm, Körper/Beine klar getrennt. Grenadier: Kopf mit Helm und Gesicht, kräftiger Körper, Rucksack hinten, Panzerfaust auf der Schulter (Rohr metall, Spitze teamfarben), Beine sichtbar. Beide bei 28 px eindeutig unterscheidbar.

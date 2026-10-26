@@ -117,24 +117,31 @@
         for (let i = 0; i < n; i++) s += `<circle cx="${x + h / 2 + i * ((w - h) / (n - 1))}" cy="${y + h / 2}" r="${h / 2 - 2}" fill="${METL}"/>`;
         return s;
       };
-      const soldier = (x, dark) => {
-        const c = dark ? t.dark : t.color;
-        return `<g ${S}><path d="M${x - 4} 42v-8h8v8" fill="${MET}"/><rect x="${x - 5}" y="22" width="10" height="13" rx="2" fill="${c}"/>` +
-          `<circle cx="${x}" cy="17" r="5" fill="${SKIN}"/><path d="M${x - 6} 17a6 6 0 0 1 12 0z" fill="${c}"/>` +
-          `<path d="M${x + 2} 27L${x + 14} 21" stroke="${MET}" stroke-width="3.5"/></g>`;
+      const soldier = (x, y0, dark) => {
+        const c = dark ? t.dark : t.color, hc = dark ? t.dark : t.color;
+        return `<g ${S}><path d="M${x - 5} ${y0 + 42}v-9h4.5v9zM${x + 0.5} ${y0 + 42}v-9h4.5v9z" fill="${MET}"/>` +
+          `<rect x="${x - 6}" y="${y0 + 22}" width="12" height="13" rx="3" fill="${c}"/>` +
+          `<path d="M${x - 6} ${y0 + 31}h12" stroke="${OUT}" stroke-width="1.5"/>` +
+          `<circle cx="${x + 1}" cy="${y0 + 16}" r="6" fill="${SKIN}"/><circle cx="${x + 3.5}" cy="${y0 + 16.5}" r="1.1" fill="${OUT}" stroke="none"/>` +
+          `<path d="M${x - 5.5} ${y0 + 15.5}a6.5 6.5 0 0 1 13 0z" fill="${hc}"/><path d="M${x - 5.5} ${y0 + 15.5}h14" stroke-width="1.8"/>` +
+          `<path d="M${x + 2} ${y0 + 28}L${x + 14} ${y0 + 21}" stroke="${MET}" stroke-width="3.5"/>` +
+          `<path d="M${x + 1} ${y0 + 27}l3 -1" stroke="${SKIN}" stroke-width="3"/></g>`;
       };
       let b = '';
       let sh = `<ellipse cx="24" cy="43" rx="16" ry="3" fill="#000" opacity=".25"/>`;
       switch (type) {
         case 'inf':
-          b = soldier(18, true) + soldier(30, false);
+          b = soldier(15, -2, true) + soldier(29, 0, false);
           break;
         case 'mech':
-          b = `<g ${S}><path d="M13 42v-9h9v9" fill="${MET}"/><rect x="9" y="19" width="14" height="17" rx="3" fill="${t.dark}"/>` +
-            `<rect x="14" y="21" width="13" height="15" rx="3" fill="${t.color}"/><circle cx="23" cy="15" r="5.5" fill="${SKIN}"/>` +
-            `<path d="M17 15a6.5 6.5 0 0 1 13 0z" fill="${t.color}"/>` +
-            `<rect x="14" y="14" width="30" height="6" rx="2" transform="rotate(-12 24 20)" fill="${MET}"/>` +
-            `<path d="M38 8l7-1-1 6z" fill="${t.color}"/></g>`;
+          b = `<g ${S}><rect x="5" y="19" width="9" height="15" rx="3" fill="${t.dark}"/>` +
+            `<path d="M12 42v-9h5v9zM19 42v-9h5v9z" fill="${MET}"/>` +
+            `<rect x="10" y="22" width="18" height="14" rx="4" fill="${t.color}"/><path d="M10 32h18" stroke-width="1.5"/>` +
+            `<circle cx="20" cy="14" r="7" fill="${SKIN}"/><circle cx="23.5" cy="15" r="1.3" fill="${OUT}" stroke="none"/>` +
+            `<path d="M12.5 13.5a7.5 7.5 0 0 1 15 0z" fill="${t.color}"/><path d="M12.5 13.5h16" stroke-width="1.8"/>` +
+            `<rect x="9" y="17" width="34" height="6" rx="2.5" transform="rotate(-14 24 20)" fill="${MET}"/>` +
+            `<path d="M39 8.5l7.5-1.5-1.5 7z" fill="${t.color}"/>` +
+            `<path d="M20 28l8-3" stroke="${SKIN}" stroke-width="3.5"/></g>`;
           break;
         case 'recon':
           b = `<g ${S}><path d="M6 35v-8l8-2 5-7h12l4 8 7 2v7z" fill="${t.color}"/><path d="M19 18h12l3 7H16z" fill="${GLASS}"/>` +
