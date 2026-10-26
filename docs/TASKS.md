@@ -6,7 +6,7 @@
 2. Ändere bestehende Dateien mit gezielten Edits, nicht durch Neuschreiben ganzer Dateien. Neue Dateien in einem Stück schreiben.
 3. Werte nie im Code wiederholen. Immer aus `AW.UNITS`, `AW.DAMAGE` usw. lesen.
 4. Führe den Test des Pakets aus. Er muss grün sein. `node game/test/data.test.js` muss immer grün bleiben.
-5. Hake das Paket hier mit `[x]` ab, committe (`T0X: <Kurzbeschreibung>`) und pushe auf den aktuellen Branch.
+5. Hake das Paket hier mit `[x]` ab, committe (`TXX: <Kurzbeschreibung>`) und pushe auf den aktuellen Branch.
 6. Antworte im Chat in 1–3 Zeilen. Keine Code-Auszüge, keine Zusammenfassung der Doku.
 7. Bei 🧠 markierten Paketen: erst kurz planen, dann umsetzen. Alle anderen direkt umsetzen.
 8. Wenn ein Paket unklar ist, triff die einfachste Annahme, die zur Doku passt, und vermerke sie in einer Zeile unter dem Paket.
@@ -92,6 +92,49 @@ Nach jedem Paket ist das Spiel öffnungsfähig (`game/index.html`). Der alte Pro
   - Lesen: AI.md (Abnahme) · DESIGN.md §8
   - `selfplay.js` um Statistik erweitern: gebaute Einheiten je Typ, Siegquote je Seite und Karte. Wenn eine Seite einer Karte > 70 % gewinnt (gleiche Stufe), die Karte in `missions.js` anpassen (Startgeld oder Gebäude). Wenn ein Einheitentyp nie oder immer gebaut wird, `cost` in `data.js` um höchstens ±15 % ändern. Jede Änderung als Zeile in DESIGN.md §8 dokumentieren.
   - Test: alle Tests und alle Abnahmen aus AI.md grün.
+
+- [ ] **T12 Umbenennung zu „Miniwars“**
+  - Lesen: `game/index.html` (Titel), `game/icons-preview.html` (nur `<title>`/`<h1>`), `js/menu.js` (`SAVE`, `main`), DESIGN.md Kopfzeile, `test/smoke.js`
+  - Spielname überall „Miniwars“: `<title>` beider Seiten, Hauptmenü `<h1>Miniwars</h1>`, Untertitel bleibt „Die Valdur-Krise“ (Kampagnenname), DESIGN.md-Überschrift „Miniwars – Die Valdur-Krise · Spieldesign“. Story-Texte in `missions.js` nur ändern, wenn „Eisenfront“ vorkommt.
+  - Speicherstand: `SAVE = 'miniwars.campaign'`; `unlocked()` liest zusätzlich den alten Schlüssel `eisenfront.campaign` (Maximum beider), damit Fortschritt erhalten bleibt.
+  - Smoke-Test: prüft `<title>` und `<h1>` = „Miniwars“.
+  - Test: `grep -rn Eisenfront game docs` liefert nur die Zeile mit dem alten Speicherschlüssel; `node game/test/smoke.js`
+
+- [ ] **T13 Fehler (mittel): Flussflächen werden als Ring gezeichnet**
+  - Befund: 2×2-Flussblock (Gefecht „Zwei Ufer“, Kartenmitte) erscheint als hohles blaues Quadrat mit Gras in der Mitte.
+  - Lesen: ART.md (Gelände, Straßen und Flüsse) · `js/render.js` (`neighborMask`) · in `js/icons.js` nur die Fluss-Funktion
+  - `neighborMask` liefert für Fluss zusätzlich Diagonal-Bits (oben-rechts 16, unten-rechts 32, unten-links 64, oben-links 128, nur gesetzt, wenn beide angrenzenden Orthogonalen auch Fluss sind). Der Fluss füllt bei gesetztem Diagonal-Bit die betreffende Ecke, sodass zusammenhängende Flächen als See erscheinen. Straßen ignorieren die neuen Bits. Vorschau-Seite: zusätzlich ein 2×2- und ein 3×3-Flussblock.
+  - Test: T03-Test, `node game/test/smoke.js`; Screenshot der Kartenmitte „Zwei Ufer“ zeigt eine geschlossene Wasserfläche.
+
+- [ ] **T14 Fehler (gering): Mobilansicht 360 px**
+  - Befund: Bei 360 px ist die Karte rechts abgeschnitten (horizontal scrollen nötig), darunter viel leerer Platz im Seitenpanel.
+  - Lesen: `css/style.css` · in `js/render.js` nur die Kachelgrößen-Berechnung
+  - Kachelgröße so wählen, dass die Karte in die Breite passt, aber nie kleiner als 22 px (`min(56px, max(22px, (100vw - Ränder) / w))`, als CSS-Variable aus `render.js` gesetzt). Erst darunter horizontal scrollen. Info-Panel ohne feste Mindesthöhe.
+  - Test: `node game/test/smoke.js`; Playwright 360×740 auf „Zwei Ufer“: `#boardWrap.scrollWidth <= #boardWrap.clientWidth`.
+
+- [ ] **T15 Piktogramme: Infanterie und Grenadier**
+  - Befund: Grenadier hat keinen Kopf/kein Gesicht, wirkt wie ein Klumpen; Infanterie ohne sichtbare Haut, Gesichter fehlen.
+  - Lesen: ART.md (Stil, Einheiten) · in `js/icons.js` nur die beiden Einheitenfunktionen
+  - Infanterie: Gesicht in Hautfarbe unter dem Helm, Körper/Beine klar getrennt. Grenadier: Kopf mit Helm und Gesicht, kräftiger Körper, Rucksack hinten, Panzerfaust auf der Schulter (Rohr metall, Spitze teamfarben), Beine sichtbar. Beide bei 28 px eindeutig unterscheidbar.
+  - Test: T04-Test; Vorschau-Screenshot (Einheiten auf Ebene, 96 px und 28 px) selbst ansehen.
+
+- [ ] **T16 Piktogramme: Fahrzeuge und Bomber**
+  - Befund: Bomber-Triebwerke schweben als Kästen unter dem Rumpf, Flügel kaum erkennbar; Späher hat Periskop statt MG und kein offenes Verdeck; Raketen ohne teamfarbene Spitzen; Schwerer Panzer ohne Kettenschürzen.
+  - Lesen: ART.md (Einheiten) · in `js/icons.js` nur die Funktionen für bomber, recon, rocket, heavy
+  - Bomber: breiter Rumpf, gerade Flügel sichtbar, 2 Triebwerke an den Flügeln, Bombenschacht. Späher: offenes Verdeck, MG auf Halterung. Raketen: Spitzen teamfarben. Schwerer Panzer: Schürzen über der Kette, Rohr innerhalb der 48er-Box.
+  - Test: T04-Test; Vorschau-Screenshot selbst ansehen, kein Element ragt aus der Box.
+
+- [ ] **T17 Balancing: teure Einheiten** 🧠
+  - Befund (Self-Play, alle Stufen): Raketenwerfer, Jäger, Bomber werden nie, Schwerer Panzer fast nie gebaut. `brutal hard` liegt mit 75 % genau auf der Grenze.
+  - Lesen: AI.md (Produktion, Abnahme) · DESIGN.md §8 · `test/selfplay.js` · in `js/ai.js` nur `chooseBuilds`
+  - `selfplay.js`: optionales 4. Argument Startgeld (Standard wie bisher). Mit 10000 prüfen, ob die teuren Typen gebaut werden. Erlaubt: `chooseBuilds` so ändern, dass bei reichlich Geld nicht nur nach Nutzen/Kosten gewählt wird (z. B. Sparen für eine teure Einheit, wenn ihr Nutzen deutlich höher ist), sowie `cost` von rocket/fighter/bomber/heavy um höchstens 20 % senken. Jede Änderung als Zeile in DESIGN.md §8.
+  - Test: alle Abnahmen aus AI.md grün (nicht verschlechtern; `brutal hard` ≥ 75 %); `selfplay.js normal normal 10 10000` baut jeden der vier Typen mindestens einmal. Wird das nicht erreicht: Stand dokumentieren, Abnahmen grün halten.
+
+- [ ] **T18 Veröffentlichung**
+  - Lesen: `README.md` · im Repo-Root `index.html` **nur** die Zeilen um `</form>` (Datei ist groß, verschlüsselte Staticrypt-Seite; nie komplett lesen oder neu schreiben)
+  - Root-`index.html`: direkt nach dem schließenden `</div>` von `staticrypt-form` (innerhalb `staticrypt-page`) eine Zeile `<p style="text-align:center"><a href="game/">Miniwars spielen</a></p>` einfügen. Sonst nichts ändern.
+  - `README.md`: Abschnitt „Miniwars“ mit 2–3 Zeilen (rundenbasiertes Strategiespiel im Browser, Link https://cantcodecan.github.io/game/, Doku in `docs/`).
+  - Test: `git diff --stat index.html` zeigt genau 1 eingefügte Zeile; Playwright: Root-Seite laden, Link „Miniwars spielen“ führt zu `game/index.html` und zeigt das Hauptmenü.
 
 ## Später (nicht jetzt umsetzen)
 
