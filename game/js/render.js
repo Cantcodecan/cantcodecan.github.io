@@ -31,6 +31,14 @@
     return m;
   }
 
+  let mapW = 0;
+  function fitTile() {
+    if (!root || !mapW) return;
+    const vw = document.documentElement.clientWidth, gut = vw >= 900 ? 304 : 16;
+    root.style.setProperty('--t', Math.min(56, Math.max(22, Math.floor((vw - gut) / mapW))) + 'px');
+  }
+  if (typeof window !== 'undefined') window.addEventListener('resize', fitTile);
+
   function init(el) {
     root = el;
     root.innerHTML = '<div id="tiles"></div><div id="units"></div>';
@@ -42,7 +50,7 @@
   function draw(s, view = {}) {
     root.style.setProperty('--w', s.w);
     root.style.setProperty('--h', s.h);
-    root.style.setProperty('--t', `min(56px, max(22px, calc((100vw - var(--gut)) / ${s.w})))`);
+    mapW = s.w; fitTile();
     let th = '';
     s.tiles.forEach((t, i) => {
       const x = i % s.w, y = Math.floor(i / s.w), k = key(x, y);
